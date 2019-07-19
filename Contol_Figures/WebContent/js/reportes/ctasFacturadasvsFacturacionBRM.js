@@ -209,11 +209,12 @@ var dt='';
                 					 			'<th>'+v.no_brm+'</th>'+
                 					 			'</tr>'+
                 					 			'<tr>'                					 			+
-                					 			'<th>'+parseInt(v.TOTAL_COMP)*(0.36)+'<th>'
+                					 			//'<th>'+parseInt(v.TOTAL_COMP)*(0.36)+'<th>'
 //                					 			'<th>'+v.TOTAL_EDO_CTA*0.18+'<th>'
 //                					 			'<th>'+v.TOTAL_FACT*0.18+'<th>'
 //                					 			'<th>'+v.TOTAL_NOTAS*0.18+'<th>'+
                 					 			'</tr>'
+                					 			
                 					 			);
             					 	});
             					 	$("#tableResumeInterfactura").DataTable({
