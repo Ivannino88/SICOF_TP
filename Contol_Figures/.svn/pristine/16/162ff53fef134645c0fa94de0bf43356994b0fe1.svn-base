@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mx.totalplay.SDMapper_Inserts">
+<!-- ACTUALIZAR E INSERCCION CONTROL DE ACCESO -->
+	<select id="getUpdateLastConnection" parameterType="java.util.Map">
+	UPDATE SICOF_EMPLEADOS
+	SET ULTIMA_CONEXION =TO_DATE(#{last_connection}, 'DD/MM/YYYY HH24:MI:SS')
+	WHERE NO_EMPLEADO = #{no_empleado}
+	</select>
+	
+	<select id="getInsertPermisos" parameterType="list">
+	INSERT ALL		
+		<foreach collection="list" item="element" index="index"  separator=" " >
+			INTO SICOF_ACCESO_EMPLEADOS ( NO_EMPLEADO, ID_MODULO, ID_CIFRA, ESTATUS) VALUES(
+			#{element.no_empleado},
+			#{element.id_modulo},
+			#{element.id_cifra},
+			#{element.estatus})
+		</foreach>
+	SELECT * FROM DUAL
+	</select>
+	
+	<select id="getUpdatePermisos" parameterType="java.util.Map">	
+			UPDATE SICOF_ACCESO_EMPLEADOS 
+				SET ESTATUS=#{estatus}
+			WHERE NO_EMPLEADO=#{no_empleado} AND ID_CIFRA=#{id_cifra}
+	</select>
+	
+	<select id="getUpdateEmpleado" parameterType="java.util.Map">	
+			UPDATE SICOF_EMPLEADOS 
+				SET NOMBRE=#{nombre}, APELLIDO=#{apellido}
+			WHERE NO_EMPLEADO=#{no_empleado}
+	</select>
+	<select id="getInsertEmpleado" parameterType="java.util.Map">	
+			INSERT INTO SICOF_EMPLEADOS (NO_EMPLEADO, NOMBRE, APELLIDO,ULTIMA_CONEXION) 
+			VALUES (#{no_empleado},#{nombre},#{apellido},null)
+	</select>
+
+	
+<!-- INSERT CtasActBRMvsU2000LOAction INSERCCION DE ELEMENTOS POR EXCEL -->
+	
+	<select id="CtasActBRMvsU2000LI_insertarCuentas" parameterType="java.util.Map">
+		INSERT WHEN ((SELECT CUENTA FROM LINEAS_INTERNAS_CUENTA_U2000 WHERE CUENTA=#{cuenta})IS NULL) THEN
+		 INTO LINEAS_INTERNAS_CUENTA_U2000 (CUENTA, FECHA, EMPRESA)
+		VALUES (#{cuenta},TO_DATE(#{fecha}, 'DD/MM/YYYY'),#{empresa}) 
+		
+		SELECT * FROM DUAL
+	</select>
+			
+	<select id="CtasActBRMvsU2000LI_insertarSN" parameterType="java.util.Map">
+		INSERT WHEN ((SELECT SN FROM LINEAS_INTERNAS_SN_U2000 WHERE SN=#{sn})IS NULL) THEN
+		 INTO LINEAS_INTERNAS_SN_U2000 (SN, FECHA, EMPRESA)
+		VALUES (#{sn},TO_DATE(#{fecha}, 'DD/MM/YYYY'),#{empresa}) 
+		
+		SELECT * FROM DUAL		
+	</select>
+
+<!-- INSERCCION PaqTvBrmRedIPTVIncluidoLI_DAO DE ELEMENTOS DE LINEAS INTERNAS -->
+
+<select id="PaqTvBrmRedIPTVIncluidoLI_insertarCtas" parameterType="java.util.Map">
+		
+	INSERT WHEN ((SELECT CUENTA FROM LINEAS_INTERNAS_CUENTA_IPTV WHERE CUENTA=#{cuenta})IS NULL) THEN
+		 INTO LINEAS_INTERNAS_CUENTA_IPTV (CUENTA, FECHA, EMPRESA)
+		 VALUES (#{cuenta},TO_DATE(#{fecha}, 'DD/MM/YYYY'),#{empresa}) 
+	
+		SELECT * FROM DUAL
+	</select>
+	
+	<select id="PaqTvBrmRedIPTVIncluidoLI_insertarSN" parameterType="java.util.Map">
+	
+	INSERT WHEN ((SELECT SN FROM LINEAS_INTERNAS_SN_IPTV WHERE SN=#{sn})IS NULL) THEN
+		 INTO LINEAS_INTERNAS_SN_IPTV (SN, FECHA, EMPRESA)
+		VALUES (#{sn},TO_DATE(#{fecha}, 'DD/MM/YYYY'),#{empresa}) 
+	
+		SELECT * FROM DUAL
+	</select>
+	
+	<select id="insertParrillasvsTMCode" parameterType="java.util.Map">
+	INSERT
+		 INTO INTER_PAQUETES_IPTV_NOMBRE (PAQUETE_BRM, PAQUETE_IPTV)
+		VALUES (#{paquete_brm},#{paquete_iptv})
+
+	</select>
+	
+<!-- ************************ ADICIONALES U2000 BRM PROMOCIONES ******************************* -->
+
+	<select id="insertPromociones_dobleCAT" parameterType="java.util.Map">
+	
+		INSERT INTO MEGAS_PROMOCION_DOBLE_CAT (POID, PRODUCTO) VALUES (#{poid},#{producto})
+
+	</select>
+	
+	<select id="insertPromociones_paqueteIntermedia" parameterType="java.util.Map">
+	
+		INSERT INTO MEGAS_PAQUETE_INTERMEDIA (PAQUETE, MEGAS_BAJADA) VALUES (#{paquete},#{megas_bajada})
+
+	</select>
+	
+	<select id="insertPromociones_creceloCAT" parameterType="java.util.Map">
+	
+		INSERT INTO MEGAS_CRECELO_CAT (POID, PRODUCTO, MEGAS) VALUES (#{poid},#{producto},#{megas})
+
+	</select>
+	
+	<select id="insertPromociones_addCAT" parameterType="java.util.Map">
+	
+		INSERT INTO MEGAS_ADICIONALES_CAT (POID, PRODUCTO, MEGAS) VALUES (#{poid},#{producto},#{megas})
+
+	</select>
+	
+	<!-- implementacion TFE -->
+	<select id="implementacionTfe" parameterType="java.util.Map">
+		INSERT WHEN ((SELECT SN FROM SN_DE_IMPLEMENTACION_TFE WHERE SN=#{cuenta})IS NULL) THEN
+		INTO SN_DE_IMPLEMENTACION_TFE (SN)
+		VALUES (#{cuenta}) 
+		SELECT * FROM DUAL
+	
+<!-- 		INSERT INTO SN_DE_IMPLEMENTACION_TFE (SN) VALUES (#{cuenta}) -->
+	</select>
+<!-- 	ims_implementacion -->
+	<select id="evaluacionIMS" parameterType="java.util.Map">
+		INSERT INTO IMS_DN (DN, TIPO, PBX_ID) VALUES (#{cuenta},#{plan},#{estatus})
+	</select>
+	
+	
+<!-- **********   MEGAS ACTUALIZACION DE TABLA *********   -->
+ 
+<select id="InsertStatus" parameterType="java.util.Map">	
+			UPDATE  DETALLE_ADDONS_BRM_NO_U2000 
+			 SET ACCION=#{accion}
+			WHERE ONT=#{ont} 
+			AND CUENTA=#{cuenta}
+			AND ID_CONCILIACION=#{id} 
+	</select>
+	
+	<select id="InsertStatusUno" parameterType="java.util.Map">	
+			UPDATE  DETALLE_ADDONS_BRM_NO_U2000 
+			 SET ACCION=#{accion}
+			WHERE TRUNC(FECHA) = TO_DATE(#{fecha}, 'dd/mm/yyyy') 
+	</select>
+	
+
+  <select id="actualizaCorregidos" parameterType="java.util.Map">	
+			UPDATE  CONCILIACION_ADDONS_BRM_U2000 
+			 SET CORREGIDO=#{corregido}
+			WHERE TRUNC(FECHA) = TO_DATE(#{fecha}, 'dd/mm/yyyy') 
+	</select>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+<!--   
+  
+	<select id="InsertStatus1" parameterType="list">
+	INSERT ALL		
+		<foreach collection="list" item="element" index="index"  separator=" " >
+			INTO DETALLE_ADDONS_BRM_NO_U2000 ( CUENTA,MEGAS_BRM,MEGAS_RED,ONT,ACCION) VALUES(
+			#{element.cuenta},
+			#{element.megas},
+			#{element.descr},
+			#{element.ont},
+			#{element.accion})
+		</foreach>
+	SELECT * FROM DUAL
+	</select>
+
+<select id="updateDetalleAddonsBrmNoU2000" parameterType="java.util.Map">	
+			   DETALLE_ADDONS_BRM_NO_U2000 
+			 SET ACCION=#{accion}
+			WHERE ONT=#{ont}
+	</select>
+ -->
+
+
+</mapper>

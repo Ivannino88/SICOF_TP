@@ -1,0 +1,1824 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mx.totalplay.SDMapper_Selects">
+	<!-- ***************** VALIDACION DE USUARIOS SICOF ******************** -->
+	
+<select id="getControlAcceso" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.ControlAccesoVO">
+	SELECT SICOF_ACCESO_EMPLEADOS.NO_EMPLEADO,SICOF_ACCESO_EMPLEADOS.ID_MODULO,
+	SICOF_MODULOS.NOMBRE NOMBRE_MODULO, SICOF_ACCESO_EMPLEADOS.ID_CIFRA,
+	SICOF_CIFRAS.NOMBRE NOMBRE_CIFRA, ESTATUS
+	FROM ((SICOF_ACCESO_EMPLEADOS
+	JOIN
+	SICOF_MODULOS ON
+	SICOF_ACCESO_EMPLEADOS.ID_MODULO=SICOF_MODULOS.ID_MODULO)
+	JOIN
+	SICOF_CIFRAS ON
+	SICOF_ACCESO_EMPLEADOS.ID_CIFRA=SICOF_CIFRAS.ID_CIFRA)
+	WHERE NO_EMPLEADO=#{no_empleado} AND ESTATUS='V'
+</select>
+
+<select id="getControlAccesoDesplegables" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.ControlAccesoVO">
+	SELECT SICOF_ACCESO_EMPLEADOS.NO_EMPLEADO,SICOF_ACCESO_EMPLEADOS.ID_MODULO,
+	SICOF_MODULOS.NOMBRE NOMBRE_MODULO, SICOF_ACCESO_EMPLEADOS.ID_CIFRA,
+	SICOF_CIFRAS.NOMBRE NOMBRE_CIFRA, ESTATUS
+	FROM ((SICOF_ACCESO_EMPLEADOS
+	JOIN
+	SICOF_MODULOS ON
+	SICOF_ACCESO_EMPLEADOS.ID_MODULO=SICOF_MODULOS.ID_MODULO)
+	JOIN
+	SICOF_CIFRAS ON
+	SICOF_ACCESO_EMPLEADOS.ID_CIFRA=SICOF_CIFRAS.ID_CIFRA)
+	WHERE NO_EMPLEADO=#{no_empleado} AND ID_MODULO=#{id_modulo} AND ESTATUS='V'
+</select>
+
+<select id="getControlAccesoModulos" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.ControlAccesoVO">
+	SELECT SM.ID_MODULO, SM.NOMBRE
+		FROM SICOF_MODULOS SM
+</select>
+<select id="getControlAccesoCifras" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.ControlAccesoVO">
+	SELECT SC.ID_CIFRA, SC.NOMBRE, SC.ID_MODULO
+		FROM SICOF_CIFRAS SC WHERE SC.ID_MODULO=#{modulo}
+</select>
+
+<select id="getControlAccesoInfoEmpleado" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.ControlAccesoVO">
+	SELECT SE.NO_EMPLEADO, SE.NOMBRE, SE.APELLIDO, SE.ULTIMA_CONEXION  
+		FROM SICOF_EMPLEADOS SE WHERE SE.NO_EMPLEADO=#{no_empleado}
+</select>
+<select id="getSelectPermisos" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.ControlAccesoVO">
+		SELECT NO_EMPLEADO FROM SICOF_ACCESO_EMPLEADOS
+		WHERE NO_EMPLEADO=#{no_empleado} AND ID_CIFRA=#{id_cifra}
+</select>
+
+
+	<!-- JRMM CONSULTA PARA REPORTE DE INSTALACIONES VS ALMACEN CIFRAS SAP-BRM  -->
+	<select id="select_INSTALACIONESVSALMACENCIFRASSAPBRM" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.InstalacionesVSalmacen_cifras_sapbrm_VO">
+		SELECT 
+		  CSB.NO_BRM                                                                              AS NO_BRM,
+		  CSB.NO_SAP                                                                              AS NO_SAP,
+		  CSB.TOTAL                                                                               AS TOTAL,
+		  CSB.T_CONCILIADOS                                                                       AS T_CONCILIADOS,
+		  ROUND(((CSB.T_CONCILIADOS * 100)/CSB.TOTAL),2)                                          AS PORCENTAJE,
+		  CSB.ERROR_BRM                                                                           AS NO_FOUND_BRM,
+		  CSB.ERROR_SAP                                                                           AS NO_FOUND_SAP,
+		  CSB.STATUS                                                                              AS STATUS,
+		  
+		 	ROUND((CASE WHEN(CSB.TOTAL!=0)THEN((CSB.ERROR_BRM  * 100)/CSB.TOTAL)ELSE 0 END),2) AS NO_FOUND_BRM_PORC,
+    		ROUND((CASE WHEN(CSB.TOTAL!=0)THEN((CSB.ERROR_SAP * 100)/CSB.TOTAL)ELSE 0 END),2)	AS NO_FOUND_SAP_PORC,
+		  (CSB.ERROR_BRM        + CSB.ERROR_SAP)                                                  AS NO_FOUNDS_TOTAL,
+    		ROUND((CASE WHEN(CSB.TOTAL!=0)THEN((CSB.ERROR_BRM * 100)/CSB.TOTAL)ELSE 0 END),2)	+
+    		ROUND((CASE WHEN(CSB.TOTAL!=0)THEN((CSB.ERROR_SAP* 100)/CSB.TOTAL)ELSE 0 END),2)	
+    		AS NO_FOUNDS_PORC_TOTAL
+		  
+		FROM CONCILIACION_SAP_BRM CSB
+		WHERE TRUNC(CSB.FECHA) = TO_DATE(#{fecha}, 'DD/MM/YYYY')
+	</select>
+	<!-- FIN  JRMM CONSULTA PARA REPORTE DE INSTALACIONES VS ALMACEN CIFRAS SAP-BRM -->
+		<!-- CONSULTA PARA REPORTE DE BRM-ISM  -->
+	<select id="ctasActBRMvsIMS" parameterType="com.mx.totalplay.vo.CtasActBRMvsU2000VO" resultType="com.mx.totalplay.vo.CtasActBRMvsU2000VO">
+		   SELECT
+		    CIB.FECHA,
+		    CIB.NO_BRM AS no_brm,
+		    CIB.NO_IMS	 AS no_ims,
+		    CIB.T_CONCILIACION as t_conciliados,
+		    CIB.ERROR_TOTAL,
+		    CIB.ERROR_BRM,
+		    CIB.ERROR_TP ERROR_BRM_TP,
+		    CIB.ERROR_ENL ERROR_BRM_ENL,
+		    CIB.ERROR_TFE ERROR_BRM_TFE,
+		    CIB.ERROR_IMS,
+		    CIB.TOTAL,
+		    CIB.STATUS,
+		    CIB.EMPRESA,
+		    CIB.TIPO_CONCILIACION,
+		 	ROUND((CASE WHEN(CIB.TOTAL!=0)THEN((CIB.T_CONCILIACION * 100)/CIB.TOTAL)ELSE 0 END),2) AS PORCENTAJECONC,
+    		ROUND((CASE WHEN(CIB.TOTAL!=0)THEN((CIB.ERROR_TOTAL * 100)/CIB.TOTAL)ELSE 0 END),2)	AS PORCENTAJENOCONC,
+    		ROUND((CASE WHEN(CIB.NO_BRM!=0)THEN((CIB.ERROR_BRM * 100)/CIB.TOTAL)ELSE 0 END),2)		AS PORCENTAJEERRORBRM,
+    		ROUND((CASE WHEN(CIB.NO_IMS!=0)THEN((CIB.ERROR_IMS * 100)/CIB.TOTAL)ELSE 0 END),2)	AS PORCENTAJEERRORIMS
+		 FROM   CONCILIACION_IMS_BRM CIB
+		WHERE 1 = 1
+		    AND TRUNC(CIB.FECHA) = TO_DATE(#{fecha}, 'DD/MM/YYYY')
+		    AND CIB.TIPO_CONCILIACION = '1'    
+	</select>
+	
+	<!-- reportes excel  JRMM-->
+		<select id="selectDetalleIMSNOBRM"  parameterType="java.lang.String" resultType="com.mx.totalplay.vo.cuentasactivasimsvsbrmVO">
+			SELECT
+			    DINB.FECHA AS FECHA,
+			    DINB.DN AS DN
+			FROM DETALLE_IMS_NO_BRM DINB
+			WHERE TRUNC(DINB.FECHA) = TO_DATE(#{fecha}, 'DD/MM/YYYY')
+		
+		</select>
+		
+		<select id="selectDetalleBRMNOIMS"  parameterType="java.lang.String"  resultType="com.mx.totalplay.vo.cuentasactivasbrmvsimsVO">
+			SELECT 
+			    DBNI.FECHA AS FECHA,
+			    DBNI.CUENTA AS CUENTA,
+			    DBNI.PLAN AS PLAN,
+			    DBNI.DN AS DN,
+			    DBNI.TMCODE AS TMCODE
+			FROM DETALLE_BRM_NO_IMS DBNI
+			WHERE TRUNC(DBNI.FECHA) = TO_DATE(#{fecha}, 'DD/MM/YYYY')
+		</select>
+	
+	<!-- FIN reportes excel  JRMM-->
+	
+	
+	
+	
+	<!-- FIN  CONSULTA PARA REPORTE DE BRM-ISM-->
+	<!-- CAAR  -->
+	<select id="getaCentralvsEntradaSaVO" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.aCentralvsEntradaSaVO">
+		SELECT 
+		    MATERIAL, 
+		    DESCR_MATERIAL, 
+		    CENTRO, 
+		    NOMBRE, 
+		    CANTIDAD,
+		    CANTIDAD_SALIDA,
+		    FECHA_PEDIDO,
+		    DECODE(STATUS,'@08@','verde','@09@','Amarillo','@0A@','Rojo','NA') SEMAFORO
+		FROM SAP_CENTRAL_REGIONAL
+			WHERE TRUNC(FECHA_INSERCION) = TO_DATE(#{fecha}, 'DD/MM/YYYY')
+	</select>
+	<!-- CAAR  -->
+	
+	<!-- REPORTE: 4. Cifra Control Cuentas Activas BRM vs. U2000   -->
+	<select id="ctasActBRMvsU2000" parameterType="com.mx.totalplay.vo.CtasActBRMvsU2000VO" resultType="com.mx.totalplay.vo.CtasActBRMvsU2000VO">
+		SELECT
+			CBU.ID,
+		    TRUNC(CBU.FECHA) AS FECHA,
+		    CBU.NO_BRM,
+		    CBU.NO_FFM	 AS NO_U2000,
+		    CBU.T_CONCILIADOS,
+		    CBU.ERROR_TOTAL,
+		    CBU.ERROR_BRM,
+		    CBU.ERROR_U2000,
+		    CBU.TOTAL,
+		    CBU.STATUS,
+		    CBU.EMPRESA,
+		    CBU.TIPO_CONCILIACION,		    
+		 	ROUND((CASE WHEN(CBU.TOTAL!=0)THEN((CBU.T_CONCILIADOS * 100)/CBU.TOTAL)ELSE 0 END),2) AS PORCENTAJECONC,
+    		ROUND((CASE WHEN(CBU.TOTAL!=0)THEN((CBU.ERROR_TOTAL * 100)/CBU.TOTAL)ELSE 0 END),2)	AS PORCENTAJENOCONC,
+    		ROUND((CASE WHEN(CBU.NO_BRM!=0)THEN((CBU.ERROR_BRM * 100)/CBU.TOTAL)ELSE 0 END),2)		AS PORCENTAJEERRORBRM,
+    		ROUND((CASE WHEN(CBU.NO_FFM!=0)THEN((CBU.ERROR_U2000 * 100)/CBU.TOTAL)ELSE 0 END),2)	AS PORCENTAJEERRORU2000
+    		
+		FROM
+		    CONCILIACION_BRM_U2000 CBU
+		WHERE 1 = 1
+		    AND TRUNC(CBU.FECHA) = TO_DATE(#{fecha}, 'DD/MM/YYYY')
+		    AND CBU.TIPO_CONCILIACION = #{tipo_conciliacion:VARCHAR}
+	</select>
+	<!-- grafica lineal gl03 -->
+	<select id="ctasActBRMvsU2000Semana" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.CtasActBRMvsU2000VO">
+	 	SELECT * FROM CONCILIACION_BRM_U2000 actual
+   		INNER JOIN dias_grafica dg on actual.fecha=dg.fecha
+   		where semana=#{semana}  AND año=#{anio} ORDER BY dia
+	</select>
+	<select id="ctasActBRMvsU2000Mes" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.CtasActBRMvsU2000VO">
+		SELECT * FROM CONCILIACION_BRM_U2000 actual
+   		INNER JOIN dias_grafica dg on actual.fecha=dg.fecha
+   		where mes=#{mes}  AND año=#{anio} ORDER BY dia
+	</select>
+	
+	<select id="detalleActBRMvsU2000" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.DetalleBrmNoU2000VO" >
+	
+	SELECT 
+	DBNU.FECHA_CONCILIACION,
+	DBNU.ID_CONCILIACION,
+	DBNU.CUENTA,
+	DBNU.EMPRESA,
+	DBNU.PLAN,
+	DBNU.SN,
+	DBNU.STATUS_CUENTA AS status_cuenta
+	FROM detalle_brm_no_u2000 DBNU
+	WHERE TRUNC(FECHA_CONCILIACION) =TO_DATE(#{fecha}, 'DD/MM/YYYY')	
+	</select>
+	
+	<select id="detalleActBRMvsU2000Filtro" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.DetalleBrmNoU2000VO" >	
+	SELECT 
+	DBNU.FECHA_CONCILIACION,
+	DBNU.ID_CONCILIACION,
+	DBNU.CUENTA,
+	DBNU.EMPRESA,
+	DBNU.PLAN,
+	DBNU.SN,
+	DBNU.STATUS_CUENTA AS status_cuenta
+	FROM detalle_brm_no_u2000 DBNU
+	WHERE TRUNC(FECHA_CONCILIACION) =TO_DATE(#{fecha}, 'DD/MM/YYYY')
+	AND DBNU.EMPRESA = #{filtro}	
+	</select>
+
+
+	<select id="detalleCUENTASN" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.DetalleBrmNoU2000VO" >
+		SELECT * FROM DETALLE_BRM_2000_DIF_CUENTA
+		WHERE TRUNC(FECHA_CONCILIACION) =TO_DATE(#{fecha}, 'DD/MM/YYYY')
+	</select>
+	<select id="detalleCUENTASNFiltro" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.DetalleBrmNoU2000VO" >
+		SELECT * FROM DETALLE_BRM_2000_DIF_CUENTA
+		WHERE TRUNC(FECHA_CONCILIACION) =TO_DATE(#{fecha}, 'DD/MM/YYYY')
+		AND EMPRESA = #{filtro}
+	</select>
+
+<!--  *************************LINEAS INTERNAS************************** -->
+
+	<select id="ctasActBRMvsU2000LI_Cuentas"  parameterType="java.util.Map" resultType="com.mx.totalplay.vo.LineasInternasVO">
+	SELECT CUENTA, TO_CHAR(FECHA,'DD/MM/YYYY') AS FECHA, EMPRESA
+	FROM LINEAS_INTERNAS_CUENTA_U2000 
+	WHERE TRUNC(FECHA)=TO_DATE(#{fecha}, 'DD/MM/YYYY')
+	</select>
+	
+	<select id="ctasActBRMvsU2000LI_Cuentastodos"  parameterType="java.util.Map" resultType="com.mx.totalplay.vo.LineasInternasVO">
+	SELECT CUENTA, TO_CHAR(FECHA,'DD/MM/YYYY') AS FECHA, EMPRESA
+	FROM LINEAS_INTERNAS_CUENTA_U2000 
+	</select>
+	
+	<select id="ctasActBRMvsU2000LI_SN"  parameterType="java.util.Map" resultType="com.mx.totalplay.vo.LineasInternasVO">
+	SELECT SN, TO_CHAR(FECHA,'DD/MM/YYYY') AS FECHA, EMPRESA
+	FROM LINEAS_INTERNAS_SN_U2000
+	WHERE TRUNC(FECHA)=TO_DATE(#{fecha}, 'DD/MM/YYYY')
+	</select>
+	
+	<select id="ctasActBRMvsU2000LI_SNtodos"  parameterType="java.util.Map" resultType="com.mx.totalplay.vo.LineasInternasVO">
+	SELECT SN, TO_CHAR(FECHA,'DD/MM/YYYY') AS FECHA, EMPRESA
+	FROM LINEAS_INTERNAS_SN_U2000
+	</select>
+	
+	<select id="detalleAct2000" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.Detalle2000NoBrmVO" >
+	
+	SELECT 
+	DBNU.FECHA_CONCILIACION,
+	DBNU.ID_CONCILACION,
+	DBNU.CUENTA,
+	DBNU.EMPRESA,
+	DBNU.NOMBRE,
+	DBNU.SN,
+	DBNU.NOMBREONT,
+	DBNU.ETIQUETA
+	FROM DETALLE_2000_NO_BRM DBNU
+	WHERE TRUNC(FECHA_CONCILIACION) =TO_DATE(#{fecha}, 'DD/MM/YYYY')
+	
+	</select>
+	
+	<select id="detalleAct2000Filtro" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.Detalle2000NoBrmVO" >
+	
+	SELECT 
+	DBNU.FECHA_CONCILIACION,
+	DBNU.ID_CONCILACION,
+	DBNU.CUENTA,
+	DBNU.EMPRESA,
+	DBNU.NOMBRE,
+	DBNU.SN,
+	DBNU.NOMBREONT,
+	DBNU.ETIQUETA
+	FROM DETALLE_2000_NO_BRM DBNU
+	WHERE TRUNC(FECHA_CONCILIACION) =TO_DATE(#{fecha}, 'DD/MM/YYYY')
+	AND DBNU.EMPRESA = #{filtro}
+	</select>
+	
+<!-- ******************************************************************************************************* -->
+<!-- ****************************** REPORTE PaqTvBrmRedIPTVIncluido  *************************************** -->
+
+	<select id="getPaqTvBrmRedIPTVIncluido" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.ConciliacionIptvBrmVO">
+		select 
+	        Id,
+	        Fecha,
+	        nvl(No_Iptv,0) as No_Iptv,
+	        nvl(No_Brm,0) as No_Brm,
+	        nvl(T_Conciliados,0) as T_Conciliados,
+	        nvl(Error_Total,0) as Error_Total,
+	        nvl(Error_Iptv,0) as Error_Iptv,
+	        nvl(Error_Brm,0) as Error_Brm,
+	        nvl(Total,0) as Total,
+	        Status,
+	        Empresa,
+	        Tipo_Conciliacion
+  		from CONCILIACION_IPTV_BRM
+		where TRUNC(Fecha) = TO_DATE(#{fecha}, 'DD/MM/YYYY')
+		AND Tipo_Conciliacion=#{Tipo_Conciliacion}
+	</select>
+	
+	<select id="getDetalleNoBrmIptv" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.DetalleNoBrmIptv">
+		select 
+		  fecha,
+		  id_conciliacion,
+		  cuenta,
+		  plan,
+		  stb,
+		  tmcode
+		from DETALLE_BRM_NO_IPTV
+<!-- 		where id_conciliacion = #{Id} -->
+		where TRUNC(fecha) = TO_DATE(#{fecha}, 'DD/MM/YYYY')
+		
+	</select>
+	<select id="getDetalleNoIptvBrm" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.DetalleIptvNoBrm">
+		select 
+		  fecha,
+		  id_conciliacion,
+		  cuenta,
+		  nombre,
+		  stb
+		from detalle_iptv_no_brm
+<!-- 		where id_conciliacion = #{Id} -->
+	     where TRUNC(fecha) = TO_DATE(#{fecha}, 'DD/MM/YYYY')
+	</select>
+<!-- ************************** LINEAS INTERNAS PaqTvBrmRedIPTVIncluido*********************************** -->
+	
+	<select id="PaqTvBrmRedIPTVIncluidoLI_Ctas"  parameterType="java.util.Map" resultType="com.mx.totalplay.vo.LineasInternasVO">
+	SELECT CUENTA, TO_CHAR(FECHA,'DD/MM/YYYY') AS FECHA, EMPRESA
+	FROM LINEAS_INTERNAS_CUENTA_IPTV 
+	WHERE TRUNC(FECHA)=TO_DATE(#{fecha}, 'DD/MM/YYYY')
+	</select>
+	
+	<select id="PaqTvBrmRedIPTVIncluidoLI_Ctastodos"  parameterType="java.util.Map" resultType="com.mx.totalplay.vo.LineasInternasVO">
+	SELECT CUENTA, TO_CHAR(FECHA,'DD/MM/YYYY') AS FECHA, EMPRESA
+	FROM LINEAS_INTERNAS_CUENTA_IPTV 
+	</select>
+	
+	<select id="PaqTvBrmRedIPTVIncluidoLI_SN"  parameterType="java.util.Map" resultType="com.mx.totalplay.vo.LineasInternasVO">
+	SELECT SN, TO_CHAR(FECHA,'DD/MM/YYYY') AS FECHA, EMPRESA 
+	FROM LINEAS_INTERNAS_SN_IPTV
+	WHERE TRUNC(FECHA)=TO_DATE(#{fecha}, 'DD/MM/YYYY')
+	</select>
+	
+	<select id="PaqTvBrmRedIPTVIncluidoLI_SNtodos"  parameterType="java.util.Map" resultType="com.mx.totalplay.vo.LineasInternasVO">
+	SELECT SN, TO_CHAR(FECHA,'DD/MM/YYYY') AS FECHA, EMPRESA 
+	FROM LINEAS_INTERNAS_SN_IPTV
+	</select>
+	
+<!-- FIN INTERNAS -->
+
+<!-- ***********   CuentasCanceladasvsCuentasU2000BRM-U2000  **************** -->	
+
+	<select id="getcCanceladasvsU2000" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.CCanceladasvsU2000VO">
+		SELECT 
+			  FECHA,
+			  NO_U2000,
+			  NO_BRM,
+			  T_CONCILIADOS,
+			  ERROR_TOTAL,
+			  ERROR_U2000,
+			  ERROR_BRM,
+			  TOTAL, 
+			  STATUS, 
+			  EMPRESA, 
+			  TIPO_CONCILIACION,
+			  DECODE(EMPRESA,'TOTALPLAY',1,'ENLACE',2,'TFE',3) AS ORDEN
+	 	FROM CONCILIACION_U2000_CANCELADAS
+	    	WHERE TRUNC(FECHA) = TO_DATE(#{fecha}, 'DD/MM/YYYY')
+	    ORDER BY ORDEN
+	</select>
+	
+	<select id="detalleCanceladasvsU2000"  parameterType="java.lang.String" resultType="com.mx.totalplay.vo.DetalleU2000CanceladasVO">
+	SELECT 
+	ID,
+	FECHA,
+	CUENTA,
+	PLAN,
+	EMPRESA,
+	FECHA_CANCELACION,
+	SN_STB,
+	TMCODE
+	FROM DETALLE_U2000_CANCELADAS
+    WHERE TRUNC(FECHA) = TO_DATE(#{fecha}, 'DD/MM/YYYY')	
+	</select>
+	
+	<select id="detalleCanceladasvsU2000Filtro"  parameterType="java.util.Map" resultType="com.mx.totalplay.vo.DetalleU2000CanceladasVO">
+	SELECT 
+	ID,
+	FECHA,
+	CUENTA,
+	PLAN,
+	EMPRESA,
+	FECHA_CANCELACION,
+	SN_STB,
+	TMCODE
+	FROM DETALLE_U2000_CANCELADAS
+    WHERE TRUNC(FECHA) = TO_DATE(#{fecha}, 'DD/MM/YYYY')
+    AND EMPRESA = #{filtro}	
+	</select>
+	
+	
+	<!-- REPORTE:  Cuentas por Ciclo vs. Cuentas Facturadas BRM- BRM    -->
+	
+	<select id="CtasCiclovsCtasBRM" parameterType="com.mx.totalplay.vo.CtasCiclovsCtasBRMVO" resultType="com.mx.totalplay.vo.CtasCiclovsCtasBRMVO">
+	SELECT
+		    CBI.FECHA,
+		    CBI.NO_CUENTAS,
+		    CBI.NO_FACTURADAS,
+		    CBI.T_CONCILIADOS,
+		    CBI.ERROR_TOTAL,
+		    CBI.ERROR_CICLO,
+		    CBI.ERROR_FACTURADAS,
+		    CBI.TOTAL,
+		    CBI.STATUS,
+		    CBI.EMPRESA,
+		    CBI.TIPO_CONCILIACION,	  
+		 	ROUND((CASE WHEN(CBI.TOTAL!=0)THEN((CBI.T_CONCILIADOS * 100)/CBI.TOTAL)ELSE 0 END),2) AS PORCENTAJECONC,
+    		ROUND((CASE WHEN(CBI.TOTAL!=0)THEN((CBI.ERROR_TOTAL * 100)/CBI.TOTAL)ELSE 0 END),2)	AS PORCENTAJENOCONC,
+    		ROUND((CASE WHEN(CBI.NO_CUENTAS!=0)THEN((CBI.NO_CUENTAS * 100)/CBI.TOTAL)ELSE 0 END),2)		AS PORCENTAJEERRORCUENTAS,
+    		ROUND((CASE WHEN(CBI.NO_FACTURADAS!=0)THEN((CBI.NO_FACTURADAS * 100)/CBI.TOTAL)ELSE 0 END),2)	AS PORCENTAJEERRORFACTURADAS
+		
+		FROM
+		    CONCILIACION_CICLO_FACTURACION CBI
+		WHERE 1 = 1
+		    AND TRUNC(CBI.FECHA) = TO_DATE(#{fecha}, 'DD/MM/YYYY')
+	</select>
+	
+	<select id="getDetalleCicloNoFacturado" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.DetalleCicloNoFacturadoVO">
+	  SELECT 
+		ID_CONCILIACION,
+		FECHA,
+		CUENTA,
+		EMPRESA,
+		PLAN,
+		NOMBRE_CIENTE as nombreCliente		
+	FROM DETALLE_CICLO_NO_FACTURADO
+	WHERE TRUNC(FECHA) = TO_DATE(#{fecha},'DD/MM/YYYY')
+	</select>
+	<select id="getDetalleCicloNoFacturadoFiltro" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.DetalleCicloNoFacturadoVO">
+	  SELECT 
+		ID_CONCILIACION,
+		FECHA,
+		CUENTA,
+		EMPRESA,
+		PLAN,
+		NOMBRE_CIENTE as nombreCliente		
+	FROM DETALLE_CICLO_NO_FACTURADO
+	WHERE TRUNC(FECHA) = TO_DATE(#{fecha},'DD/MM/YYYY')
+	AND EMPRESA = #{filtro}
+	</select>
+	
+	<select id="getDetalleFacturadoNoCiclo" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.DetalleFacturadoNoCicloVO">
+		SELECT 
+		 ID_CONCILIACION,
+		 FECHA,
+		CUENTA,
+	 	EMPRESA,
+		FOLIO
+		 MONTO,
+		 FECHA_FACTURA,
+	 	FECHA_VENCIMIENTO	
+		FROM DETALLE_FACTURADO_NO_CICLO
+		WHERE TRUNC(FECHA) = TO_DATE(#{fecha}, 'DD/MM/YYYY')
+	</select>	
+	<select id="getDetalleFacturadoNoCicloFiltro" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.DetalleFacturadoNoCicloVO">
+		SELECT 
+		 ID_CONCILIACION,
+		 FECHA,
+		CUENTA,
+	 	EMPRESA,
+		FOLIO
+		 MONTO,
+		 FECHA_FACTURA,
+	 	FECHA_VENCIMIENTO	
+		FROM DETALLE_FACTURADO_NO_CICLO
+		WHERE TRUNC(FECHA) = TO_DATE(#{fecha}, 'DD/MM/YYYY')
+		AND EMPRESA = #{filtro}
+	</select>	
+	
+	<!-- Cuentas Facturadas vs. Facturacion BRM - INTERFACTURA ***************************************************************************************XX****************** -->
+	<select id="reporteCtasFactvsFactBRMIF" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.CtasFacturadasvsFacturacionbrmVO">
+			SELECT 
+			  CIBRM.ID											   AS ID,
+			  CIBRM.TOTAL                                          AS TOTAL,
+			  CIBRM.EMPRESA                                        AS EMPRESA,
+			  CIBRM.STATUS                                         AS ESTATUS,
+			  CIBRM.NO_BRM                                         AS NO_BRM,
+			  CIBRM.NO_IF                                       AS NO_IF,
+			  CIBRM.T_CONCILIACION                                 AS T_CONCILIACION,
+			  CIBRM.ERROR_TOTAL                                    AS ERROR_TOTAL,
+			  CIBRM.ERROR_BRM                                      AS ERROR_BRM,
+			  CIBRM.ERROR_IF                                       AS ERROR_IF,
+			 CASE WHEN CIBRM.TOTAL > 0
+		        THEN ROUND(((CIBRM.ERROR_TOTAL    * 100)/CIBRM.TOTAL),2)
+		        ELSE 0
+		        END AS PORC_ERROR_TOTAL,
+		        CASE WHEN CIBRM.TOTAL > 0
+		        THEN ROUND(((CIBRM.T_CONCILIACION * 100)/CIBRM.TOTAL),2)
+		        ELSE 0
+		        END AS PORC_DISP,        
+		        CASE WHEN CIBRM.TOTAL > 0
+		        THEN ROUND(((CIBRM.ERROR_BRM      * 100)/CIBRM.TOTAL),2)
+		        ELSE 0
+		        END AS PORC_ERROR_BRM,
+		        CASE WHEN CIBRM.TOTAL > 0
+		        THEN ROUND(((CIBRM.ERROR_IF       * 100)/CIBRM.TOTAL),2)
+		        ELSE 0
+		        END AS PORC_ERROR_IF
+		        FROM CONCILIACION_INTERFACTURA_BRM CIBRM
+			WHERE TRUNC(CIBRM.FECHA) = TO_DATE(#{fecha},'dd/mm/yyyy') AND TIPO_CONCILIACION=#{t_conciliacion}
+	</select>
+	<select id="selectDetalleCtasFactvsFactBRMIF" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.DetalleCtasFacturadasvsFacturacionbrmVO">
+		SELECT 
+		  TRUNC(DETBNI.FECHA)             AS FECHA,
+		  DETBNI.CUENTA            AS CUENTA,
+		  DETBNI.EMPRESA           AS EMPRESA,
+		  DETBNI.FOLIO             AS MONTO,
+		  TRUNC(DETBNI.FECHA_FACTURA)     AS FECHA_FACTURA,
+		  TRUNC(DETBNI.FECHA_VENCIMIENTO) AS FECHA_VENCIMIENTO
+		FROM DETALLE_BRM_NO_INTERFACTURA DETBNI		
+		 WHERE ID_CONCILIACION=#{id_tp} OR ID_CONCILIACION=#{id_enl} OR ID_CONCILIACION=#{id_tfe}
+	</select>
+	<select id="selectDetalleCtasFactvsFactBRMIFFiltro" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.DetalleCtasFacturadasvsFacturacionbrmVO">
+		SELECT 
+		  TRUNC(DETBNI.FECHA)             AS FECHA,
+		  DETBNI.CUENTA            AS CUENTA,
+		  DETBNI.EMPRESA           AS EMPRESA,
+		  DETBNI.FOLIO             AS MONTO,
+		  TRUNC(DETBNI.FECHA_FACTURA)     AS FECHA_FACTURA,
+		  TRUNC(DETBNI.FECHA_VENCIMIENTO) AS FECHA_VENCIMIENTO
+		FROM DETALLE_BRM_NO_INTERFACTURA DETBNI		
+		 WHERE (ID_CONCILIACION=#{id_tp} OR ID_CONCILIACION=#{id_enl} OR ID_CONCILIACION=#{id_tfe} )
+		 AND EMPRESA = #{filtro}
+	</select>
+	
+	<select id="selectDetalleCtasFactvsFactMontos" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.DetalleCtasFacturadasvsFacturacionMontosVO">
+	SELECT 
+	ID_CONCILIACION,
+	FECHA_CONCI,
+	EMPRESA,
+	ARCHIVO,
+	ACCOUNT_NO,
+	NUM_FACTURA,
+	FOLIO1,
+	FOLIO2,
+	FOLIO3,
+	RAZON_SOCIAL,
+	TOTAL1,
+	TOTAL2,
+	TOTAL3,
+	CICLO,
+	FECHA,
+	TIPO,
+	ERROR_T,
+	FECHA_I,
+	RFC,
+	FOLIO_FISCAL,
+	FOLIO_FISCAL2,
+	FOLIO_FISCAL3,
+	SERIE1,
+	RS_FACTURANTE1,
+	SERIE2,
+	RS_FACTURANTE2,
+	SERIE3,
+	RS_FACTURANTE3
+	FROM DETALLE_MONTOS_INTERFACTURA
+	WHERE ID_CONCILIACION=#{id_tp} OR ID_CONCILIACION=#{id_enl} OR ID_CONCILIACION=#{id_tfe}
+	</select>
+	<select id="selectDetalleCtasFactvsFactMontosFiltro" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.DetalleCtasFacturadasvsFacturacionMontosVO">
+	SELECT 
+	ID_CONCILIACION,
+	FECHA_CONCI,
+	EMPRESA,
+	ARCHIVO,
+	ACCOUNT_NO,
+	NUM_FACTURA,
+	FOLIO1,
+	FOLIO2,
+	FOLIO3,
+	RAZON_SOCIAL,
+	TOTAL1,
+	TOTAL2,
+	TOTAL3,
+	CICLO,
+	FECHA,
+	TIPO,
+	ERROR_T,
+	FECHA_I,
+	RFC,
+	FOLIO_FISCAL,
+	FOLIO_FISCAL2,
+	FOLIO_FISCAL3,
+	SERIE1,
+	RS_FACTURANTE1,
+	SERIE2,
+	RS_FACTURANTE2,
+	SERIE3,
+	RS_FACTURANTE3
+	FROM DETALLE_MONTOS_INTERFACTURA
+	WHERE (ID_CONCILIACION=#{id_tp} OR ID_CONCILIACION=#{id_enl} OR ID_CONCILIACION=#{id_tfe})
+	AND EMPRESA= #{filtro}
+	</select>
+	<!--  Cuentas Facturadas vs. Facturacion BRM - INTERFACTURA -->
+	
+	<!-- REPORTE: . Cifra Control Instalaciones nuevas vs Cuentas Activadas FFM - BRM-->
+	<select id="getInstalacionesNuevasCuentasActivadasFfmBrm" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.InstalacionesNuevasCuentasActivadasFfmBrmVO">
+		select 
+		  id,
+		  fecha,
+		  no_brm,
+		  no_ffm,
+		  t_conciliacion,
+		  error_total,
+		  error_brm,
+		  error_ffm,
+		  total,
+		  status,
+		  empresa,
+		  tipo_conciliacion
+		from conciliacion_ffm_brm
+		where TRUNC(fecha) = TO_DATE(#{fecha},'dd/mm/yyyy')
+	</select>
+	<select id="getDetalleFfmNoBrm" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.DetalleFfmNoBrmVO">
+		select
+		  fecha,
+		  id_conciliacion,
+		  cuenta,
+		  fecha_activacion,
+		  empresa
+		  from DETALLE_FFM_NO_BRM
+		<!--  WHERE TRUNC(FECHA) =TO_DATE(#{fecha},'DD/MM/YYYY') -->
+		WHERE FECHA = TO_DATE(#{fecha},'dd/mm/yyyy') 
+	</select>
+	<select id="getDetalleBrmNoFfm" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.DetalleBrmNoFfmVO">
+		select 
+		  fecha,
+		  id_conciliacion,
+		  cuenta,
+		  plan,
+		  fecha_activacion,
+		  empresa
+		  from DETALLE_BRM_NO_FFM
+		WHERE FECHA =TO_DATE(#{fecha},'DD/MM/YYYY')
+		<!--WHERE FECHA = #{fecha}
+		 and ROWNUM &lt;= 100 -->
+	</select>
+	<!-- grafica lineal gl02 -->
+	<select id="getSemanaActivadasFfmBrm" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.InstalacionesNuevasCuentasActivadasFfmBrmVO">
+		SELECT * FROM conciliacion_ffm_brm actual
+   		INNER JOIN dias_grafica dg on actual.fecha=dg.fecha
+   		where semana=#{semana}  AND año=#{anio} ORDER BY dia
+	</select>
+	<!-- grafica lineal gl02 -->
+	<select id="getMesActivadasFfmBrm" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.InstalacionesNuevasCuentasActivadasFfmBrmVO">
+		SELECT * FROM conciliacion_ffm_brm actual
+   		INNER JOIN dias_grafica dg on actual.fecha=dg.fecha
+   		where mes=#{mes}  AND año=#{anio} ORDER BY dia
+	</select>
+	
+	
+	
+<!-- 	Instalaciones vs Salidas de Almacén SAP - BRM-->
+	<select id="getInstVsSalidasAlmacenSAP" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.InstVsSalidasAlmacenSAPVO">
+		select 
+		  id,
+		  fecha,
+		  no_brm,
+		  no_sap,
+		  t_conciliados,
+		  error_total,
+		  error_brm,
+		  error_sap,
+		  total,
+		  status,
+		  tipo_conciliacion
+		from conciliacion_sap_brm
+		WHERE TRUNC(FECHA) =TO_DATE(#{fecha},'DD/MM/YYYY')
+	</select>
+	<select id="getDetalleSapNoBrm" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.DetalleSapNoBrmVO">
+		select 
+		  fecha,
+		  id_conciliacion,
+		  no_serie,
+		  fe_contable,
+		  numero_material
+		  from DETALLE_SAP_NO_BRM
+		WHERE TRUNC(FECHA) =TO_DATE(#{fecha},'DD/MM/YYYY')
+	</select>
+	<select id="getDetalleBrmNoSap" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.DetalleBrmNoSapVO">
+		select 
+		  fecha,
+		  id_conciliacion,
+		  cuenta,
+		  empresa,
+		  sn
+		  from DETALLE_BRM_NO_SAP
+		WHERE TRUNC(FECHA) =TO_DATE(#{fecha},'DD/MM/YYYY')
+	</select>
+	<!-- GRAFICA LINEAL SEMANA gl01 -->
+	<select id="getInstVsSalidasAlmacenSAPSemana" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.InstVsSalidasAlmacenSAPVO">
+	SELECT * FROM conciliacion_sap_brm actual
+   		INNER JOIN dias_grafica dg on actual.fecha=dg.fecha
+   		where semana=#{semana} AND año=#{anio} ORDER BY dia
+   </select>
+   <!-- GRAFICA LINEAL MES gl01 -->
+	<select id="getInstVsSalidasAlmacenSAPMes" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.InstVsSalidasAlmacenSAPVO">
+	SELECT * FROM conciliacion_sap_brm actual
+   		INNER JOIN dias_grafica dg on actual.fecha=dg.fecha
+   		where mes=#{mes} AND año=#{anio} ORDER BY dia
+   </select>
+	
+<!-- NYOA: INICIO REPORTE ADD ONS Canales BRM vs IPTV - Adicionales -->
+
+
+<select resultType="com.mx.totalplay.vo.AddONSCanalesBRMvsIPTVAdicionalesVO" parameterType="java.lang.String" id="getCanalesBRMvsIPTVAdicionales"> 
+	SELECT 
+		CBI.FECHA, 
+		CBI.NO_IPTV, 
+		CBI.NO_BRM, 
+		CBI.T_CONCILIADOS, 
+		CBI.ERROR_TOTAL, 
+		CBI.ERROR_IPTV, 
+		CBI.ERROR_BRM, 
+		CBI.TOTAL, 
+		CBI.STATUS, 
+		CBI.EMPRESA, 
+		CBI.TIPO_CONCILIACION,
+		ROUND((CASE WHEN(CBI.TOTAL>0)THEN((CBI.T_CONCILIADOS * 100)/CBI.TOTAL)ELSE 0 END),2) AS PORCENTAJECONC,
+	   	ROUND((CASE WHEN(CBI.TOTAL>0)THEN((CBI.ERROR_TOTAL * 100)/CBI.TOTAL)ELSE 0 END),2)	AS PORCENTAJENOCONC,
+	 	ROUND((CASE WHEN(CBI.NO_BRM>0)THEN((CBI.NO_BRM * 100)/CBI.TOTAL)ELSE 0 END),2)		AS PORCENTAJEERRORCUENTAS,
+	   	ROUND((CASE WHEN(CBI.NO_IPTV>0)THEN((CBI.NO_IPTV * 100)/CBI.TOTAL)ELSE 0 END),2)	AS PORCENTAJEERRORFACTURADAS 
+	FROM 	CONCILIACION_ADDON_IPTV_BRM CBI
+	WHERE TRUNC(CBI.FECHA) =  TO_DATE(#{fecha},'dd/mm/yyyy')
+</select>
+
+<select resultType="com.mx.totalplay.vo.DetalleIPTVAddONSNoBRMVO" parameterType="java.lang.String" id="getDetalleIPTVAddONSNoBRM"> 
+	SELECT 
+		FECHA, 
+		ID_CONCILIACION,
+		CUENTA, 
+		NOMBRE, 
+		PLAN, 
+		STATUS_CUENTA, 
+		PAQUETE_PRINCIPAL, 
+		ADDON, 
+		FECHA_APROVISANAMIENTO
+	FROM DETALLE_IPTV_ADDONS_NO_BRM 
+	WHERE TRUNC(FECHA) = TO_DATE(#{fecha},'dd/mm/yyyy')
+</select>
+
+<select resultType="com.mx.totalplay.vo.DetalleBRMAddONSNoIPTVVO" parameterType="java.lang.String" id="getDetalleBRMAddONSNoIPTV"> 
+	SELECT 
+		FECHA, 
+		ID_CONCILIACION, 
+		CUENTA, 
+		TIPO_SERVICIO, 
+		POID_PURCHASED_PRODUCT, 
+		POID_PRODUCT, 
+		NOMBRE_PRODUCTO, 
+		DESCR
+	FROM DETALLE_BRM_ADDONS_NO_IPTV 
+	WHERE TRUNC(FECHA) = TO_DATE(#{fecha},'dd/mm/yyyy') 
+</select>
+
+<!-- NYOA: FIN REPORTE ADD ONS Canales BRM vs IPTV - Adicionales -->
+	<!-- JRMM CONSULTA PARA REPORTE DE INSTALACIONES VS ALMACEN CIFRAS SAP-BRM -->
+	<select id="selectSalidasAlmacencvsEntradasSubAlmac" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.SalidasAlmacenCvsEntradasSubalmacVO">
+		SELECT DISTINCT SCR.MATERIAL AS PEDIDO,
+		  SCR.CENTRO                 AS PLAZA,
+		  SCR.FECHA_PEDIDO           AS FECHA_PEDIDO,
+		  DECODE(SCR.STATUS,'@08@','verde','@09@','amarillo','@0A@','rojo','NA')AS SEMAFORO,
+		  SCR.NOMBRE                 AS NOMBRE,
+		  SCR.DESCR_MATERIAL         AS DESCRIPCION,
+		  SCR.CANTIDAD               AS CANTIDAD,
+		  SCR.FECHA_INSERCION		 AS FECHA_INSERCION
+		FROM SAP_CENTRAL_REGIONAL SCR
+		WHERE  TRUNC(SCR.FECHA_INSERCION)  = TO_DATE(#{fecha},'dd/mm/yyyy')
+		ORDER BY SCR.MATERIAL ASC
+	</select>
+	<select id="selectDetalleSalidasAlmacencvsEntradasSubAlmac" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.SalidasAlmacenCvsEntradasSubalmacVO">
+		SELECT  SCR.MATERIAL AS PEDIDO,
+		  SCR.CENTRO                 AS PLAZA,
+		  TRUNC(SCR.FECHA_PEDIDO)           AS FECHA_PEDIDO,
+		  SCR.NOMBRE                 AS NOMBRE,
+		  SCR.DESCR_MATERIAL         AS DESCRIPCION,
+		  SCR.CANTIDAD               AS CANTIDAD,
+		  DECODE(SCR.STATUS,'@08@','verde','@09@','Aarillo','@0A@','Rojo','NA')AS SEMAFORO
+		FROM SAP_CENTRAL_REGIONAL SCR
+		WHERE  TRUNC(SCR.FECHA_INSERCION)       	= TO_DATE(#{fecha:VARCHAR},'dd/mm/yyyy')
+		ORDER BY SCR.MATERIAL ASC
+	</select>
+	<!-- FIN JRMM CONSULTA PARA REPORTE DE INSTALACIONES VS ALMACEN CIFRAS SAP-BRM -->
+	
+	<!-- NYOA: REPORTE SALIDA SUBALMACEN VS ENTRADAS EN CUADRILLAS  -->
+	<select id="getSalidaSubalmacenvsEntradasCuadrillas" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.SalidasSubalmacenvsEntradasCuadrillasVO" >
+	
+		SELECT 
+(CASE WHEN (CENTRO IS NULL) THEN (CASE WHEN (CENTR IS NULL) THEN CENN ELSE CENTR END)ELSE CENTRO END)AS CENTRO, 
+(CASE WHEN (CUADRILLA IS NULL) THEN (CASE WHEN (CUAD IS NULL) THEN CUA ELSE CUAD END)ELSE CUADRILLA END)AS CUADRILLA, 
+TRUNC((CASE WHEN (FECHA_CONSULTA IS NULL) THEN (CASE WHEN (FECHACONSULTA IS NULL) THEN (FC) ELSE (FECHACONSULTA) END)ELSE (FECHA_CONSULTA) END)) AS FECHA_CONSULTA,
+(CASE WHEN (VERDE IS NULL) THEN 0 ELSE VERDE END) AS VERDE,
+(CASE WHEN (AMARILLO IS NULL) THEN 0 ELSE AMARILLO END) AS AMARILLO,
+(CASE WHEN (ROJO IS NULL) THEN 0 ELSE ROJO END) AS ROJO
+FROM
+		((SELECT 
+		CENTRO,
+		CUADRILLA,
+		FECHA_CONSULTA,
+		(CASE WHEN(COUNT(*)!=0) THEN COUNT(*) ELSE 1 END) AS VERDE
+		FROM SAP_REGIONAL_CUADRILLAS SRC
+		WHERE SRC.SEMAFORO ='@08@' AND  TO_DATE(FECHA_CONSULTA,'dd/mm/yy')= TO_DATE(#{fecha:VARCHAR},'dd/mm/yyyy')
+		GROUP BY SRC.CENTRO,SRC.CUADRILLA,SRC.FECHA_CONSULTA,SRC.SEMAFORO) SRC
+		FULL OUTER JOIN 
+		(SELECT 
+		CENTRO AS CENTR,
+		CUADRILLA AS CUAD,
+		FECHA_CONSULTA AS FECHACONSULTA,
+		(CASE WHEN(COUNT(*)!=0) THEN COUNT(*) ELSE 1 END) AS AMARILLO
+		FROM SAP_REGIONAL_CUADRILLAS
+		WHERE SEMAFORO ='@09@' AND  TO_DATE(FECHA_CONSULTA,'dd/mm/yy')=TO_DATE(#{fecha:VARCHAR},'dd/mm/yyyy')
+		GROUP BY CENTRO,CUADRILLA,FECHA_CONSULTA,SEMAFORO)SRC1 ON SRC.CENTRO=SRC1.CENTR AND SRC.CUADRILLA=CUAD
+		FULL OUTER JOIN 
+		(SELECT 
+		CENTRO AS CENN,
+		CUADRILLA AS CUA,
+		FECHA_CONSULTA AS FC,
+		(CASE WHEN(COUNT(*)!=0) THEN COUNT(*) ELSE 1 END) AS ROJO
+		FROM SAP_REGIONAL_CUADRILLAS
+		WHERE SEMAFORO ='@0A@' AND  TO_DATE(FECHA_CONSULTA,'dd/mm/yy')= TO_DATE(#{fecha:VARCHAR},'dd/mm/yyyy')
+		GROUP BY CENTRO,CUADRILLA,FECHA_CONSULTA,SEMAFORO) ON CENTR=CENN AND CUAD=CUA) 
+		ORDER BY CENTRO,CUADRILLA ASC
+
+	</select>
+	
+	<!-- FIN NYOA: REPORTE SALIDA SUBALMACEN VS ENTRADAS EN CUADRILLAS -->
+	
+	<!-- INI: G > REPORTE Salida de Equipos vs. Equipos Capitalizados SAP -->
+	<select id="selectSalidaEqvsEqCapitalizadosSAP" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.SalidaEqvsEqCapitalizadosSAPVO">
+		SELECT
+		    TRUNC(SSC.FECHA) AS FECHA,
+		    SSC.SALIDA_ALMACEN,
+		    SSC.IMPORTE,
+		    SSC.ACTIVO_FIJO,
+		    SSC.IMPORTE_ACTIVO_FIJO,
+		    DECODE(SSC.STATUS,'@5C@','rojo','@5B@','verde','verde')AS ESTATUS,
+		    TRUNC(SSC.FECHA_CONSULTA) AS FECHA_CONSULTA
+		FROM
+		    SAP_SALIDAS_CAPITALIZACION SSC
+		WHERE
+		    TRUNC(SSC.FECHA_CONSULTA) = TO_DATE(#{fecha:VARCHAR},'dd/mm/yyyy')
+		ORDER BY SSC.FECHA ASC
+	</select>
+	<!-- FIN: G > REPORTE Salida de Equipos vs. Equipos Capitalizados SAP -->
+
+	<!-- INI: G > REPORTE Cifra Control Paquetes vs. Productos Incluidos BRM - PRODUCT MASTER  ************************************************************************************** XX ************************ -->
+	<select id="selectPaqvsProductIncBRM" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.PaqvsProductIncBRMVO">
+		SELECT 
+		    CPMBS.ID,
+		    CPMBS.FECHA,
+		    CPMBS.NO_PM,
+		    CPMBS.NO_BRM,
+		    CPMBS.T_CONCILIADOS,
+		    CPMBS.ERROR_TOTAL,
+		    CPMBS.ERROR_PM,
+		    CPMBS.ERROR_BRM,
+		    CPMBS.TOTAL,
+		    CPMBS.STATUS AS ESTATUS,
+		    CPMBS.TIPO_CONCILIACION,
+		    ROUND((CASE WHEN(CPMBS.TOTAL>0)THEN((CPMBS.T_CONCILIADOS * 100)/CPMBS.TOTAL)ELSE 0 END),2)     AS PORCENTAJECONCILIADO,
+		    ROUND((CASE WHEN(CPMBS.TOTAL>0)THEN((CPMBS.ERROR_TOTAL * 100)/CPMBS.TOTAL)ELSE 0 END),2)	    AS PORCENTAJENOCONCILIADO,
+		    ROUND((CASE WHEN(CPMBS.NO_PM>0)THEN((CPMBS.ERROR_PM * 100)/CPMBS.TOTAL)ELSE 0 END),2)		    AS PORCENTAJEERRORPM,
+		    ROUND((CASE WHEN(CPMBS.NO_BRM>0)THEN((CPMBS.ERROR_BRM * 100)/CPMBS.TOTAL)ELSE 0 END),2)	    AS PORCENTAJEERRORBRM
+		FROM CONCILIACION_PM_BRM_SERVICIO CPMBS
+		WHERE
+		    TRUNC(CPMBS.FECHA) = TO_DATE(#{fecha:VARCHAR},'dd/mm/yyyy')
+		ORDER BY CPMBS.FECHA ASC
+	</select>
+	<!-- FIN: G > REPORTE Cifra Control Paquetes vs. Productos Incluidos BRM - PRODUCT MASTER  -->
+
+	<!-- INI: G > DETALLE Cifra Control Paquetes vs. Productos Incluidos BRM - PRODUCT MASTER  -->
+	<select id="selectDetallePaqvsProductIncBRM" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.DetallePaqvsProductIncBRMVO">
+		SELECT 
+		    DSB.ID,
+		    DSB.FECHA,
+		    DSB.CUENTA,
+		    DSB.PLAN,
+		    DSB.TMCODE,
+		    DSB.EMPRESA,
+		    DSB.TIPO_SERVICIO
+		FROM DETALLE_SERVICIO_BRM DSB
+		WHERE
+		    TRUNC(DSB.FECHA) = TO_DATE(#{fecha:VARCHAR},'dd/mm/yyyy')
+	</select>
+	<!-- FIN: G >   -->
+	
+	<!--  Product Master vs Productos-BRM	-->	
+	<select id="selectPaquetesServiciosActivadosBrmPM" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.PaquetesServiciosActivadosBrmPMVO">
+		select 
+		  id,
+		  fecha,
+		  no_pm,
+		  no_brm,
+		  t_conciliados,
+		  error_total,
+		  error_pm,
+		  error_brm,
+		  total,
+		  status,
+		  tipo_conciliacion
+		 from CONCILIACION_PM_BRM_PRODUCTOS
+		 WHERE TRUNC(FECHA) = TO_DATE(#{fecha}, 'dd/mm/yyyy') 
+	</select>
+	<select id="selectDetalleProductosBrm" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.DetalleProductosBrmVO">
+		select 
+		  fecha,
+		  id,
+		  cuenta,
+		  plan,
+		  tmcode,
+		  empresa,
+		  tipo_servicio,
+		  poid_product,
+		  nombre_producto,
+		  descr,
+		  cantidad,
+		  tipo_producto
+		from DETALLE_PRODUCTOS_BRM
+		 WHERE TRUNC(FECHA) = TO_DATE(#{fecha}, 'dd/mm/yyyy') 
+	</select>
+	
+<!-- parrillas -->
+	<select id="selectConciliacionTmIptvBrm" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.ConciliacionTmIptvBrmVO">
+		select 
+		    id,
+		    fecha,
+		    no_iptv,
+		    no_brm,
+		    t_conciliados,
+		    error_total,
+		    error_iptv,
+		    error_brm,
+		    total,
+		    status,
+		    tipo_conciliacion
+		from CONCILIACION_TM_IPTV_BRM
+		 WHERE TRUNC(FECHA) = TO_DATE(#{fecha}, 'dd/mm/yyyy') 
+	</select>
+	<select id="selectDetalleTmIptvNoBrm" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.DetalleTmIptvNoBrmVO">
+		select 
+			  fecha,
+			  id,
+			  cuenta,
+			  plan,
+			  tmcode
+			from detalle_tm_iptv_no_brm
+		 	WHERE TRUNC(FECHA) = TO_DATE(#{fecha}, 'dd/mm/yyyy') 
+	</select>
+		<select id="selectDetalleTmBrmNoIptv" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.DetalleTmBrmNoIptvVO">
+		select 
+		  fecha,
+		  id,
+		  cuenta,
+		  plan,
+		  tmcode
+		  from DETALLE_TM_BRM_NO_IPTV
+		 	WHERE TRUNC(FECHA) = TO_DATE(#{fecha}, 'dd/mm/yyyy') 
+	</select>
+	
+	<select id="selectParrillasvsTMCode" resultType="com.mx.totalplay.vo.ParrillasvsTMCodeVO">
+		SELECT 
+			PAQUETE_BRM,
+			PAQUETE_IPTV
+		FROM
+			INTER_PAQUETES_IPTV_NOMBRE
+	</select>
+	
+	<!-- NYOA: CONCILIACION BRM VS BANCOS -->
+	<select id="getConciliacionBrmBancos" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.ConciliacionBrmBancosVO">
+	SELECT
+		    TRUNC(CBP.FECHA) AS FECHA,
+		    CBP.NO_BRM_PAGOS,
+		    CBP.NO_PAGOS,
+		    CBP.T_CONCILIADOS,
+		    CBP.ERROR_TOTAL,
+		    CBP.ERROR_BRM,
+		    CBP.ERROR_PAGOS,
+		    CBP.TOTAL,
+		    CBP.STATUS,
+		    CBP.EMPRESA,
+		    CBP.TIPO_CONCILIACION,	
+		    CBP.CANAL,
+		    CBP.MONTO,	    
+		 	ROUND((CASE WHEN(CBP.TOTAL!=0)THEN((CBP.T_CONCILIADOS * 100)/CBP.TOTAL)ELSE 0 END),2) AS PORCENTAJECONC,
+    		ROUND((CASE WHEN(CBP.TOTAL!=0)THEN((CBP.ERROR_TOTAL * 100)/CBP.TOTAL)ELSE 0 END),2)	AS PORCENTAJENOCONC,
+    		ROUND((CASE WHEN(CBP.NO_BRM_PAGOS!=0)THEN((CBP.ERROR_BRM * 100)/CBP.TOTAL)ELSE 0 END),2)		AS PORCENTAJEERRORBRM,
+    		ROUND((CASE WHEN(CBP.NO_PAGOS!=0)THEN((CBP.ERROR_PAGOS * 100)/CBP.TOTAL)ELSE 0 END),2)	AS PORCENTAJEERRORPAGOS
+    		
+		FROM
+		    CONCILIACION_BRM_BANCO CBP
+		WHERE TRUNC(CBP.FECHA) = TO_DATE(#{fecha}, 'DD/MM/YYYY')
+		    AND CBP.EMPRESA = #{empresa:VARCHAR}
+		    AND CBP.CANAL = #{tipo_conciliacion:VARCHAR}
+	
+	</select>
+	<select id="getSelectCanal" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.ConciliacionBrmBancosVO">
+	  SELECT 
+	   CBB.CANAL
+	FROM  CONCILIACION_BRM_BANCO CBB
+	WHERE
+	 CBB.EMPRESA = #{empresa:VARCHAR}
+	 GROUP BY CANAL ORDER BY CANAL ASC
+	</select>
+
+<!-- NYOA: FIN SELECT -->
+<!-- NYOA: CONCILIACION_VOD_BRM  -->
+<select id="getConciliacionVodBrm" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.ConsumosVodBrmIptvVO">
+ SELECT 
+ 	CVB.ID,
+	CVB.FECHA,
+	CVB.NO_BRM,
+	CVB.NO_VOD,
+	CVB.T_CONCILIACION,
+	CVB.ERROR_TOTAL,
+	CVB.ERROR_BRM,
+	CVB.ERROR_VOD,
+	CVB.TOTAL,
+	CVB.STATUS,
+	CVB.EMPRESA,
+	CVB.TIPO_CONCILIACION,
+	ROUND((CASE WHEN(CVB.TOTAL!=0)THEN((CVB.T_CONCILIACION * 100)/CVB.TOTAL)ELSE 0 END),2) AS PORCENTAJECONC,
+    		ROUND((CASE WHEN(CVB.TOTAL!=0)THEN((CVB.ERROR_TOTAL * 100)/CVB.TOTAL)ELSE 0 END),2)	AS PORCENTAJENOCONC,
+    		ROUND((CASE WHEN(CVB.NO_BRM!=0)THEN((CVB.ERROR_BRM * 100)/CVB.TOTAL)ELSE 0 END),2)		AS PORCENTAJEERRORBRM,
+    		ROUND((CASE WHEN(CVB.NO_VOD!=0)THEN((CVB.ERROR_VOD * 100)/CVB.TOTAL)ELSE 0 END),2)	AS PORCENTAJEERRORVOD
+	 FROM CONCILIACION_VOD_BRM CVB
+ 	WHERE TRUNC(CVB.FECHA) = TO_DATE(#{fecha}, 'dd/mm/yyyy') 
+ 	AND CVB.TIPO_CONCILIACION=1
+</select>
+<!-- **x -->
+<select id="getConciliacionVodBrm02" parameterType="java.lang.Integer" resultType="com.mx.totalplay.vo.ConsumosVodBrmIptvVO">
+ SELECT 
+	CVB.NO_BRM,
+	CVB.NO_VOD,
+	CVB.T_CONCILIACION,
+	CVB.ERROR_TOTAL,
+	CVB.ERROR_BRM,
+	CVB.ERROR_VOD,
+	CVB.TOTAL
+	FROM CONCILIACION_VOD_BRM_SEMANAL CVB
+	  INNER JOIN DIAS_GRAFICA DG ON CVB.FECHA=DG.FECHA
+ 	WHERE DG.SEMANA=#{semana} AND DG.AÑO=#{anhio}
+</select>
+
+
+<!-- JSON*# -->
+ <select id="getDetalleVods" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.DetalleVodsVO">
+ SELECT 
+	 FECHA,
+	ID_CONCILIACION,
+	ACCOUNT,
+	USUARIO,
+	SERIE,
+	TITULO,
+	CATEGORIA,
+	CALIDAD,
+	PRECIO,
+	FECHA_PE,
+	HORA,
+	NUMERO_PARTE,
+	DATE_INSERT,
+	DATE_LAST_UPDATE,
+	STATUS,
+	LOGIN,
+	VPU_ID
+ 
+ FROM DETALLE_VODS  
+ WHERE TRUNC(FECHA) = TO_DATE(#{fecha}, 'dd/mm/yyyy') AND STATUS=1
+</select>
+
+<!-- JSON #2 POR SEMANA  -->
+ <select id="getDetalleVodsSemana" parameterType="java.lang.Integer" resultType="com.mx.totalplay.vo.DetalleVodsVO">
+ SELECT 
+	 DV.FECHA,  DV.ID_CONCILIACION, DV.ACCOUNT, DV.USUARIO, DV.SERIE,
+	DV.TITULO, DV.CATEGORIA, 	DV.CALIDAD, DV.PRECIO, 	DV.FECHA_PE, DV.HORA,
+	DV.NUMERO_PARTE, DV.DATE_INSERT, 	DV.DATE_LAST_UPDATE, DV.STATUS,
+	DV.LOGIN, 	DV.VPU_ID 
+FROM DETALLE_VODS_SEMANAL  DV 
+INNER JOIN DIAS_GRAFICA DG ON  DV.FECHA=DG.FECHA
+WHERE  DG.SEMANA=#{semana} AND DG.AÑO=#{anhio}
+</select>
+
+
+<!-- NYOA: FIN SELECT -->
+<!-- NYOA: CONCILIACIÓN ADDONS BRM vs U2000 -->
+
+ <select id="getConciliacionAddonsBrmU2000" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.AdicionalesU2000BrmVO">
+
+SELECT 
+	ID,
+	FECHA,
+	NO_BRM,
+	NO_U2000,
+	trim(T_CONCILIACION) as T_CONCILIACION,
+	ERROR_TOTAL,
+	ERROR_BRM,
+	ERROR_U2000,
+	TOTAL,
+	STATUS,
+	EMPRESA,
+	TIPO_CONCILIACION,
+	CORREGIDO,
+	ROUND((CASE WHEN(TOTAL!=0)THEN((T_CONCILIACION * 100)/TOTAL)ELSE 0 END),2) AS PORCENTAJECONC,
+    		ROUND((CASE WHEN(TOTAL!=0)THEN((ERROR_TOTAL * 100)/TOTAL)ELSE 0 END),2)	AS PORCENTAJENOCONC,
+    		ROUND((CASE WHEN(NO_BRM!=0)THEN((ERROR_BRM * 100)/TOTAL)ELSE 0 END),2)		AS PORCENTAJEERRORBRM,
+    		ROUND((CASE WHEN(NO_U2000!=0)THEN((ERROR_U2000 * 100)/TOTAL)ELSE 0 END),2)	AS PORCENTAJEERRORU2000
+ FROM CONCILIACION_ADDONS_BRM_U2000   
+ WHERE TRUNC(FECHA) = TO_DATE(#{fecha}, 'dd/mm/yyyy') 
+ and trim(EMPRESA) = 'TOTALPLAY' 
+
+</select>
+  
+ <select id="getDetalleAddonsBrmNoU2000" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.DetalleAddonsBrmNoU2000VO">
+	SELECT 
+		FECHA,
+		ID_CONCILIACION,
+		CUENTA,
+		PLAN,
+		ADDONS,
+		MEGAS,
+		DESCR,
+		ONT,
+		ACCION
+ 	FROM DETALLE_ADDONS_BRM_NO_U2000   
+   	WHERE (TRUNC(FECHA)= TO_DATE(#{fecha},'dd/mm/yyyy'))
+</select>
+
+
+<!--   detalleXXX -->
+<select id="getDetalleAddonsBrmNoU2000Detalle" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.DetalleAddonsBrmNoU2000VO">
+	SELECT 
+		FECHA,
+		ID_CONCILIACION,
+		CUENTA,
+		PLAN,
+		ADDONS,
+		MEGAS,
+		DESCR,
+		ONT,
+		ACCION
+ 	FROM DETALLE_ADDONS_BRM_NO_U2000   
+  <!--  WHERE TO_DATE(FECHA, 'dd/mm/yy') = TO_DATE(#{fecha}, 'dd/mm/yy')  ivans-->
+  	WHERE (TRUNC(FECHA)= TO_DATE(#{fecha},'dd/mm/yyyy')) 
+  	<![CDATA[ AND ROWNUM <= 1000 ]]> 
+  	
+</select>
+
+ <select id="getDetalleAddonsU2000NoBrm" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.DetalleAddonsU2000NoBrmVO"> 
+SELECT 
+	FECHA,
+	ID_CONCILIACION,
+	CUENTA,
+	ADDONS,
+	MEGAS,
+	DESCR,
+	ONT,
+	PERFIL_BAJADA,
+	ACCION
+ FROM DETALLE_ADDONS_U2000_NO_BRM  
+ WHERE TO_DATE(FECHA, 'dd/mm/yy') = TO_DATE(#{fecha}, 'dd/mm/yy') 
+ </select>
+ <!--ADICIONALES U2000BRM PROMOCIONES -->
+  <select id="getPromociones_dobleCAT" resultType="com.mx.totalplay.vo.AdicionalesU2000BrmPromocionesVO"> 
+		SELECT POID, PRODUCTO 
+		 FROM MEGAS_PROMOCION_DOBLE_CAT 
+ </select>
+ 
+  <select id="getPromociones_paqueteIntermedia" resultType="com.mx.totalplay.vo.AdicionalesU2000BrmPromocionesVO"> 
+		SELECT PAQUETE, MEGAS_BAJADA 
+		 FROM MEGAS_PAQUETE_INTERMEDIA 
+ </select>
+
+	<select id="getPromociones_creceloCAT" resultType="com.mx.totalplay.vo.AdicionalesU2000BrmPromocionesVO"> 
+		SELECT POID, PRODUCTO, MEGAS 
+		 FROM MEGAS_CRECELO_CAT 
+ 	</select>
+ 	
+ 	<select id="getPromociones_addCAT" resultType="com.mx.totalplay.vo.AdicionalesU2000BrmPromocionesVO"> 
+		SELECT POID, PRODUCTO, MEGAS 
+		 FROM MEGAS_ADICIONALES_CAT
+ 	</select>
+ 
+<!-- NYOA: FIN SELECT -->
+
+<!-- SMALLWOLRD -->
+ <select id="getSmallWorld" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.SmallWorldVO"> 
+		SELECT 
+		    id,
+		    fecha,
+			no_ffm,
+			no_sw,
+			trim(T_CONCILIADOS) as t_conciliados,
+			error_total,
+			error_ffm,
+			error_sw,
+			total,
+			status,
+			empresa,
+			tipo_conciliacion,
+			        ROUND((CASE WHEN(TOTAL!=0)  THEN((T_CONCILIADOS * 100)/TOTAL)ELSE 0 END),2) AS porcentaje_conc,
+		    		ROUND((CASE WHEN(TOTAL!=0)  THEN((ERROR_TOTAL * 100)/TOTAL)ELSE 0 END),2)	AS porcentaje_no_conc,
+		   		    ROUND((CASE WHEN(NO_FFM!=0) THEN((ERROR_FFM * 100)/TOTAL)ELSE 0 END),2)		AS porcentaje_error_ffm,
+		    		ROUND((CASE WHEN(NO_SW!=0)  THEN((ERROR_SW * 100)/TOTAL)ELSE 0 END),2)	    AS porcentaje_error_sm
+		 FROM CONCILIACION_ffm_SW_CUENTAS 
+		 WHERE (TRUNC(FECHA) = TO_DATE(#{fecha}, 'dd/mm/yyyy')) 
+		 and trim(EMPRESA) = 'TOTALPLAY'
+ </select> 
+ 
+ <select id="getDetalleFfmCuentasNoSw" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.DetalleFfmCuentasNoSwVO"> 
+		select 
+		    fecha,
+		    id_conciliacion,
+		    num_cuenta,
+		    splitter,
+		    puerto_asignado,
+		    candado,
+		    fecha_modificacion
+		from detalle_ffm_cuentas_no_sw 
+		where (TRUNC(FECHA) = TO_DATE(#{fecha}, 'dd/mm/yyyy')) 
+ </select>
+ 
+ 
+	<select id="getDetalleSWCuentasNoFFM" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.DetalleSWCuentasNoFFMVO">
+		select 
+		    trunc(FECHA) as FECHA,
+		    ID_CONCILIACION,
+		    CUENTAS,
+		    SPLITTER,
+		    PUERTO_ASIGNADO,
+		    CANDADO,
+		    trunc(FECHA_MODIFICACION) as FECHA_MODIFICACION 
+		from detalle_sw_cuentas_no_ffm
+		WHERE (TRUNC(FECHA) = TO_DATE(#{fecha}, 'dd/mm/yyyy')) 
+	</select>
+
+	<select id="getDetalleSWDatosNoFFM" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.DetalleSWDatosNoFFMVO">
+		select 
+		    trunc(FECHA) as fecha,
+		    ID_CONCILIACION,
+		    CUENTAS_FFM,
+		    SPLITTER_FFM,
+		    PUERTO_ASIGNADO_FFM,
+		    CANDADO_FFM,
+		    trunc(FECHA_MODIFICACION_FFM) as FECHA_MODIFICACION_FFM,
+		    CUENTAS_SW,
+		    SPLITTER_SW,
+		    PUERTO_ASIGNADO_SW,
+		    CANDADO_SW,
+		    trunc(FECHA_MODIFICACION_SW) as FECHA_MODIFICACION_SW 
+		from detalle_sw_DATOS_no_ffm
+		WHERE (TRUNC(FECHA) = TO_DATE(#{fecha}, 'dd/mm/yyyy')) 
+	</select>
+	<!-- SMALLWORLD -->
+<!-- NYOA: FIN SELECT -->
+
+<!-- ************************************************************************* PAGOS BANCO -->
+
+	<select id="getPagosBRMBanco" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.PagosBMBancoVO">
+		SELECT 
+		    PG.ID,
+			PG.fecha as fecha,
+			NUMERO_PAGOS,
+			IMPORTE_BRM,
+			NO_PAGOS_BANCO,
+			CE.EMPRESA AS EMPRESA,
+			DESC_CANAL AS CANAL,
+			IMPORTE_BANCOS,
+			COLOR
+		FROM PAGOS_BANCO PG
+		INNER JOIN CAT_EMPRESAS CE ON CE.ID = PG.EMPRESA
+		INNER JOIN CAT_CANALES CC ON CC.ID_CANAL = PG.CANAL
+		WHERE TRUNC(FECHA) = TO_DATE(#{fecha},'dd/mm/yyyy')
+		AND PG.EMPRESA = #{id_empresa:VARCHAR}
+		AND PG.CANAL   = #{id_canal:VARCHAR}
+	</select>	
+<!-- **************************************************************************  PAGOS BANCO DETALLE BRM Y PAYMENT  xdemo-->	
+
+	<select id="getPagosBRMBancoBRM_PAGOS" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.PagosBMBancoBRM_PagosVO">
+	SELECT
+	ID_CONCILIACION,
+	FECHA,
+	EMPRESA,
+	ACCOUNT_NO,
+	ITEM_TOTAL,
+	FECHA_PAGO,
+	DESCR,
+	FECHAINSERT,
+	ITEM_NO,
+	RECVD,
+	FECHABRM
+	FROM ${nombretabla}
+	WHERE ID_CONCILIACION=#{id_conciliacion}  
+	</select>	
+	
+	<select id="getPagosBRMBancoPaymentBATCH" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.PagosBMBancoPaymentBATCHVO">
+	SELECT * FROM DETALLE_PAYMENT_BATCH
+	WHERE ID_CONCILIACION=#{id_conciliacion}
+	</select>
+	
+	<select id="getPagosBRMBancoPaymentREC" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.PagosBMBancoPaymentRECVO">
+	SELECT * FROM DETALLE_PAYMENT_REC
+	WHERE ID_CONCILIACION=#{id_conciliacion}
+	</select>
+	
+	<select id="getPagosBRMBancoPaymentBAZ" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.PagosBMBancoPaymentBAZVO">
+	SELECT * FROM DETALLE_PAYMENT_BAZ
+	WHERE ID_CONCILIACION=#{id_conciliacion}
+	</select>
+	
+	<select id="getPagosBRMBancoPaymentOXXO" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.PagosBMBancoPaymentOXXOVO">
+	SELECT * FROM DETALLE_PAYMENT_OXXO
+	WHERE ID_CONCILIACION=#{id_conciliacion}
+	</select>	
+	
+	<select id="getPagosBRMBancoPaymentDIESTEL" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.PagosBMBancoPaymentDIESTELVO">
+	SELECT * FROM DETALLE_PAYMENT_DIESTEL
+	WHERE ID_CONCILIACION=#{id_conciliacion}
+	</select>	
+	
+	<select id="getPagosBRMBancoPaymentREGALI" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.PagosBMBancoPaymentREGALIVO">
+	SELECT * FROM DETALLE_PAYMENT_REGALI
+	WHERE ID_CONCILIACION=#{id_conciliacion}
+	</select>	
+	
+	<select id="getPagosBRMBancoPaymentMID" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.PagosBMBancoPaymentMIDVO">
+	SELECT * FROM DETALLE_PAYMENT_MID
+	WHERE ID_CONCILIACION=#{id_conciliacion}
+	</select>	
+	
+<!-- **************************************************************************-->	
+	
+	
+	
+	<select id="getPagosBRMBanco_catCanales" resultType="com.mx.totalplay.vo.PagosBMBancoVO">
+		SELECT 
+		    CC.ID_CANAL AS ID_CANAL,
+			CC.DESC_CANAL AS CANAL
+		FROM CAT_CANALES CC
+	</select>
+	<select id="getPagosBRMBanco_catEmpresas" resultType="com.mx.totalplay.vo.PagosBMBancoVO">
+		SELECT 
+		    CE.ID AS ID_EMPRESA,
+			CE.EMPRESA AS EMPRESA
+		FROM CAT_EMPRESAS CE
+	</select>
+	
+	
+	
+	<!-- CONSULTA RH PROYECTO SIN TRANSACCIONES -->
+	<select id="selectRhProyectoSinTransacciones" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.RhProyectoSinTransaccionesVO">
+
+	select CAT_RH_AREA.NOMBRE,
+	CAT_RH_EMPRESA.EMPRESA,
+	(EXTRACT(YEAR FROM (RH_AREAS_SIN_TRANS.FECHA))) AS ANIO,
+	RH_AREAS_SIN_TRANS.ID,
+	RH_AREAS_SIN_TRANS.SEMANA,
+	RH_AREAS_SIN_TRANS.SEMAFORO_VERDE,
+	RH_AREAS_SIN_TRANS.SEMAFORO_AMARILLO,
+	RH_AREAS_SIN_TRANS.SEMAFORO_ROJO
+	FROM ((RH_AREAS_SIN_TRANS 
+	INNER JOIN CAT_RH_AREA ON RH_AREAS_SIN_TRANS.AREA=CAT_RH_AREA.ID)
+	INNER JOIN CAT_RH_EMPRESA ON RH_AREAS_SIN_TRANS.EMPRESA=CAT_RH_EMPRESA.ID)
+	WHERE SEMANA= #{semana} AND EXTRACT(YEAR FROM (RH_AREAS_SIN_TRANS.FECHA))= #{anio}
+
+	</select>
+	
+	<select id="detalleSelectRhProyectoSinTransaccionesV" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.DetalleRhProyectoSinTransaccionesVO">
+	SELECT
+    CAT_RH_AREA.NOMBRE AS AREA,
+    CAT_RH_EMPRESA.EMPRESA,
+    RH_AREAS_SIN_TRANS_detalle.SEMANA,
+    EXTRACT(YEAR FROM (RH_AREAS_SIN_TRANS_detalle.FECHA)) AS ANIO,
+    RH_AREAS_SIN_TRANS_detalle.NOEMPLEADO,
+    RH_AREAS_SIN_TRANS_detalle.SITUACION,
+    RH_AREAS_SIN_TRANS_detalle.NOMBRE,
+    RH_AREAS_SIN_TRANS_detalle.CENTROCOSTOS,
+    RH_AREAS_SIN_TRANS_detalle.PUESTO,
+   RH_AREAS_SIN_TRANS_detalle. AREANOMINADESC,
+    RH_AREAS_SIN_TRANS_detalle.SEMAFORO 
+    FROM (((RH_AREAS_SIN_TRANS_detalle 
+    INNER JOIN RH_AREAS_SIN_TRANS ON RH_AREAS_SIN_TRANS_detalle.ID_CONCILIACION_RH=RH_AREAS_SIN_TRANS.ID)
+    INNER JOIN CAT_RH_AREA ON RH_AREAS_SIN_TRANS.AREA=CAT_RH_AREA.ID)
+    INNER JOIN CAT_RH_EMPRESA ON RH_AREAS_SIN_TRANS.EMPRESA=CAT_RH_EMPRESA.ID)
+    WHERE RH_AREAS_SIN_TRANS_detalle.SEMANA =#{semana}
+    AND EXTRACT(YEAR FROM (RH_AREAS_SIN_TRANS_detalle.FECHA))=#{anio}
+    AND RH_AREAS_SIN_TRANS_detalle.SEMAFORO='V'
+	</select>
+	
+	<select id="detalleSelectRhProyectoSinTransaccionesA" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.DetalleRhProyectoSinTransaccionesVO">
+	SELECT
+    CAT_RH_AREA.NOMBRE AS AREA,
+    CAT_RH_EMPRESA.EMPRESA,
+    RH_AREAS_SIN_TRANS_detalle.SEMANA,
+    EXTRACT(YEAR FROM (RH_AREAS_SIN_TRANS_detalle.FECHA)) AS ANIO,
+    RH_AREAS_SIN_TRANS_detalle.NOEMPLEADO,
+    RH_AREAS_SIN_TRANS_detalle.SITUACION,
+    RH_AREAS_SIN_TRANS_detalle.NOMBRE,
+    RH_AREAS_SIN_TRANS_detalle.CENTROCOSTOS,
+    RH_AREAS_SIN_TRANS_detalle.PUESTO,
+   RH_AREAS_SIN_TRANS_detalle. AREANOMINADESC,
+    RH_AREAS_SIN_TRANS_detalle.SEMAFORO 
+    FROM (((RH_AREAS_SIN_TRANS_detalle 
+    INNER JOIN RH_AREAS_SIN_TRANS ON RH_AREAS_SIN_TRANS_detalle.ID_CONCILIACION_RH=RH_AREAS_SIN_TRANS.ID)
+    INNER JOIN CAT_RH_AREA ON RH_AREAS_SIN_TRANS.AREA=CAT_RH_AREA.ID)
+    INNER JOIN CAT_RH_EMPRESA ON RH_AREAS_SIN_TRANS.EMPRESA=CAT_RH_EMPRESA.ID)
+    WHERE RH_AREAS_SIN_TRANS_detalle.SEMANA =#{semana}
+    AND EXTRACT(YEAR FROM (RH_AREAS_SIN_TRANS_detalle.FECHA))=#{anio}
+    AND RH_AREAS_SIN_TRANS_detalle.SEMAFORO='A'
+	</select>
+	
+		<select id="detalleSelectRhProyectoSinTransaccionesR" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.DetalleRhProyectoSinTransaccionesVO">
+	SELECT
+    CAT_RH_AREA.NOMBRE AS AREA,
+    CAT_RH_EMPRESA.EMPRESA,
+    RH_AREAS_SIN_TRANS_detalle.SEMANA,
+    EXTRACT(YEAR FROM (RH_AREAS_SIN_TRANS_detalle.FECHA)) AS ANIO,
+    RH_AREAS_SIN_TRANS_detalle.NOEMPLEADO,
+    RH_AREAS_SIN_TRANS_detalle.SITUACION,
+    RH_AREAS_SIN_TRANS_detalle.NOMBRE,
+    RH_AREAS_SIN_TRANS_detalle.CENTROCOSTOS,
+    RH_AREAS_SIN_TRANS_detalle.PUESTO,
+   RH_AREAS_SIN_TRANS_detalle. AREANOMINADESC,
+    RH_AREAS_SIN_TRANS_detalle.SEMAFORO 
+    FROM (((RH_AREAS_SIN_TRANS_detalle 
+    INNER JOIN RH_AREAS_SIN_TRANS ON RH_AREAS_SIN_TRANS_detalle.ID_CONCILIACION_RH=RH_AREAS_SIN_TRANS.ID)
+    INNER JOIN CAT_RH_AREA ON RH_AREAS_SIN_TRANS.AREA=CAT_RH_AREA.ID)
+    INNER JOIN CAT_RH_EMPRESA ON RH_AREAS_SIN_TRANS.EMPRESA=CAT_RH_EMPRESA.ID)
+    WHERE RH_AREAS_SIN_TRANS_detalle.SEMANA =#{semana}
+    AND EXTRACT(YEAR FROM (RH_AREAS_SIN_TRANS_detalle.FECHA))=#{anio}
+    AND RH_AREAS_SIN_TRANS_detalle.SEMAFORO='R'
+	</select>
+	
+	<!--CONSULTA RH PROYECTO SIN TRANSACCIONES MODAL-->
+	<select id="selectRhProyectoSinTransaccionesModal" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.RhProyectoSinTransaccionesModalVO">
+		
+	SELECT 
+	ID_CONCILIACION_RH AS IDCONCILIACION,
+    NOEMPLEADO,
+    SITUACION,
+    NOMBRE,
+    CENTROCOSTOS,
+    PUESTO,
+    AREANOMINADESC,
+    SEMAFORO,
+    DIAS_DE_ACTIVIDAD AS DIASACTIVIDAD
+     FROM RH_AREAS_SIN_TRANS_detalle
+    WHERE ID_CONCILIACION_RH = #{id} AND SEMANA =#{semana}
+    AND EXTRACT(YEAR FROM (RH_AREAS_SIN_TRANS_detalle.FECHA))=#{anio}
+	</select>
+	
+	<!--CONSULTA RH PROYECTO SIN TRANSACCIONES MODAL DETAIL-->
+	<select id="selectRhProyectoSinTransaccionesModalDetail" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.RhProyectoSinTransaccionesModalDetailVO">
+		
+	  SELECT    ID_CONCILIACION_RH AS IDCONCILIACION,
+	  			TO_CHAR(FECHA, 'DD-MM-YYYY') AS FECHA,
+	  			SEMANA, 
+	   			NOEMPLEADO,
+   			  	SITUACION,
+    		  	NOMBRE,
+    		  	CENTROCOSTOS,
+    		  	PUESTO,
+    		  	AREANOMINADESC, TO_CHAR(FECHA_DE_ACTIVIDAD, 'DD-MM-YYYY') AS FECHAACTIVIDAD FROM RH_AREAS_SIN_TRANS_DETALLE_emp 
+    		  	WHERE ID_CONCILIACION_RH = #{con} AND NOEMPLEADO = #{id}
+    		<!--WHERE  NOEMPLEADO = #{id}  -->
+		
+	</select>
+	
+	<!-- °°°°°°°°°°°°°° DETALLE CONSULTA RH PROYECTO SIN TRANSACCIONES MODAL VERDE °°°°°°°°°°°°° -->
+	<select id="selectRhProyectoSinTransaccionesModalDetalleV" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.RhProyectoSinTransaccionesModalVO">
+		
+	SELECT 
+    NOEMPLEADO,
+    SITUACION,
+    NOMBRE,
+    CENTROCOSTOS,
+    PUESTO,
+    AREANOMINADESC,
+    SEMAFORO FROM RH_AREAS_SIN_TRANS_detalle
+    WHERE ID_CONCILIACION_RH = #{id}
+    AND SEMANA =#{semana}
+    AND EXTRACT(YEAR FROM (RH_AREAS_SIN_TRANS_detalle.FECHA))=#{anio}
+    AND SEMAFORO='V'
+	</select>
+	
+	
+	<!-- °°°°°°°°°°°°°°DETALLE  CONSULTA RH PROYECTO SIN TRANSACCIONES MODAL AMARILLO °°°°°°°°°°°°° -->
+	<select id="selectRhProyectoSinTransaccionesModalDetalleA" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.RhProyectoSinTransaccionesModalVO">
+		
+	SELECT 
+    NOEMPLEADO,
+    SITUACION,
+    NOMBRE,
+    CENTROCOSTOS,
+    PUESTO,
+    AREANOMINADESC,
+    SEMAFORO FROM RH_AREAS_SIN_TRANS_detalle
+    WHERE ID_CONCILIACION_RH = #{id} AND SEMANA =#{semana}
+    AND EXTRACT(YEAR FROM (RH_AREAS_SIN_TRANS_detalle.FECHA))=#{anio}
+    AND SEMAFORO='A'
+	</select>
+	
+	
+	<!-- °°°°°°°°°°°°°° DETALLE CONSULTA RH PROYECTO SIN TRANSACCIONES MODAL ROJO °°°°°°°°°°°°° -->
+	<select id="selectRhProyectoSinTransaccionesModalDetalleR" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.RhProyectoSinTransaccionesModalVO">
+		
+	SELECT 
+    NOEMPLEADO,
+    SITUACION,
+    NOMBRE,
+    CENTROCOSTOS,
+    PUESTO,
+    AREANOMINADESC,
+    SEMAFORO FROM RH_AREAS_SIN_TRANS_detalle
+    WHERE ID_CONCILIACION_RH = #{id} AND SEMANA =#{semana}
+    AND EXTRACT(YEAR FROM (RH_AREAS_SIN_TRANS_detalle.FECHA))=#{anio}
+    AND SEMAFORO='R'
+	</select>
+	
+		<!-- °°°°°°°°°°°°°° FIN CONSULTA SEMANA ACTUAL °°°°°°°°°°°°° -->
+	<select id="selectFechaActual" resultType="com.mx.totalplay.vo.FechaActualVO">
+		SELECT TO_NUMBER(TO_CHAR(sysdate,'IW')) AS FECHA_SEMANA,
+				TO_NUMBER(TO_CHAR(sysdate,'MM')) AS FECHA_MES,
+		 		  TO_NUMBER(TO_CHAR(sysdate,'YYYY'))AS FECHA_ANIO FROM DUAL
+		
+	</select>
+	
+	<!-- **************** MODULO FACTURACION MES ANTERIOR Y MES ACTUAL ******** ivans -->
+	<select id="facturaAntAct" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.FacturaAntActVO">
+select 
+    FAA.ID,
+	CE.EMPRESA as EMPRESA,
+	FECHA_ANTERIOR,
+	MONTO_FACT_ANT,
+	FECHA_ACTUAL,
+	FAA.FECHA_ACTUAL as fecha,
+	MONTO_FACT_ACT,
+	COLOR
+from FACTURACION_ANT_ACT FAA
+inner join CAT_EMPRESAS CE on CE.ID=FAA.EMPRESA
+where (TRUNC(FECHA_ACTUAL) = TO_DATE(#{fecha},'dd/mm/yyyy'))
+<!-- and FAA.EMPRESA=#{id_empresa:VARCHAR} -->
+	</select>	
+
+	<select id="facturaAntAct_catEmpresas" resultType="com.mx.totalplay.vo.FacturaAntActVO">
+		SELECT 
+		    CE.ID AS ID_EMPRESA,
+			CE.EMPRESA AS EMPRESA
+		FROM CAT_EMPRESAS CE
+	</select>
+	
+	<!-- **************************   MODULO AJUSTES MES ANTERIOR Y MES ACTUAL  ********************** ivans -->
+	<select id="ajusteMantMact" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.AjusteMantMactVO">
+	select AJ.id,
+		   CE.EMPRESA as EMPRESA,
+		   CA.DESCR as CONCEPTO,
+		   FECHA_ANTERIOR,
+		   MONTO_AJUS_ANT,
+           FECHA_ACTUAL,
+           MONTO_AJUS_ACT,
+           COLOR
+	from AJUSTES_ANT_ACT AJ
+	inner join CAT_EMPRESAS CE on CE.ID=AJ.EMPRESA
+	inner join CAT_AJUSTES CA on  CA.ID=AJ.CONCEPTO
+    where (TRUNC(FECHA_ACTUAL)=TO_DATE(#{fecha},'dd/mm/yyyy'))
+    
+<!--     select aj.ID, -->
+<!-- 		   ce.empresa as empresa, -->
+<!-- 		   CONCEPTO, -->
+<!-- 		   FECHA_ANTERIOR, -->
+<!-- 		   MONTO_AJUS_ANT, -->
+<!--            FECHA_ACTUAL, -->
+<!--            MONTO_AJUS_ACT, -->
+<!--            COLOR -->
+<!-- 	from AJUSTES_ANT_ACT aj -->
+<!-- 	join cat_empresas ce on ce.id_empresa=aj.empresa -->
+<!--     where FECHA_ACTUAL=#{fecha} -->
+	</select>	
+
+	<select id="ajusteMantMact_catEmpresas" resultType="com.mx.totalplay.vo.AjusteMantMactVO">
+		SELECT 
+		    CE.ID      AS ID_EMPRESA,
+			CE.EMPRESA AS EMPRESA
+		FROM CAT_EMPRESAS CE
+	</select>
+	<select id="ajusteMantMact_catAjustes" resultType="com.mx.totalplay.vo.AjusteMantMactVO">
+		SELECT 
+		    CA.ID 	   AS id_ajuste,
+			CA.EMPRESA AS descrip_ajuste
+		FROM CAT_AJUSTES CA
+	</select>
+	
+	<!-- DOCUMENT DETAIL -->
+	<select id="getDocumetDetail" 	resultType="com.mx.totalplay.vo.DocumentDetailVO">
+	SELECT POSICION,CLAVE,HKONT,NOMBRECTA,
+			IMPORTE,MONEDA
+	FROM DOCUMENT_DETAIL
+	</select>
+	<!--     CONCILIACION POLIZAS INGRESOS    ivans -->
+	<select id="getConciliaPolizasIngresos" 	resultType="com.mx.totalplay.vo.ConciliaPolizasIngresosVO">
+	SELECT 
+	ID,FECHA,EMPRESA,SOCIEDAD,MONEDA,
+	MONTO_SAP,MONTO_BRM,SEMAFORO
+	FROM CONCILIACION_POLIZAS_INGRESOS
+	WHERE (TRUNC(FECHA)=TO_DATE(#{fecha},'dd/mm/yyyy')) 
+	</select>
+	
+	<!--     COBRANZA    -->
+
+	<select id="selectAjustesBrmvsAjustesSF" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.AjustesBRMvAjustesSalesForceVO">
+		
+		SELECT
+			CBAS.ID,
+		    TRUNC(CBAS.FECHA) AS FECHA,
+		    CBAS.NO_BRM,
+		    CBAS.NO_SF,
+		    CBAS.T_CONCILIADOS,
+		    CBAS.ERROR_TOTAL,
+		    CBAS.ERROR_BRM,
+		    CBAS.ERROR_SF,
+		    CBAS.TOTAL,
+		    CBAS.STATUS,
+		    CBAS.EMPRESA,
+		    CBAS.TIPO_CONCILIACION,		    
+		 	ROUND((CASE WHEN(CBAS.TOTAL!=0)THEN((CBAS.T_CONCILIADOS * 100)/CBAS.TOTAL)ELSE 0 END),2) AS PORCENTAJECONC,
+    		ROUND((CASE WHEN(CBAS.TOTAL!=0)THEN((CBAS.ERROR_TOTAL * 100)/CBAS.TOTAL)ELSE 0 END),2)	AS PORCENTAJENOCONC,
+    		ROUND((CASE WHEN(CBAS.NO_BRM!=0)THEN((CBAS.ERROR_BRM * 100)/CBAS.TOTAL)ELSE 0 END),2)		AS PORCENTAJEERRORBRM,
+    		ROUND((CASE WHEN(CBAS.NO_SF!=0)THEN((CBAS.ERROR_SF * 100)/CBAS.TOTAL)ELSE 0 END),2)	AS PORCENTAJEERRORSF
+		FROM
+		    CONCILIACION_BRM_AJUSTES_SF CBAS
+		WHERE 1 = 1
+		    AND TRUNC(CBAS.FECHA) = TO_DATE(#{fecha}, 'DD/MM/YYYY')
+		   
+		    
+	</select>
+	
+	<select id="selectAjustesSFvsBrmdetalle" resultType="com.mx.totalplay.vo.DetalleBRMvSalesForceVO">
+	SELECT
+		ASNB.id,
+		ASNB.fecha,
+		ASNB.log,
+		ASNB.nombre,
+		ASNB.cuenta,
+		ASNB.empresa,
+		ASNB.accion,
+		ASNB.fecha_ajuste,
+		ASNB.monto,
+		ASNB.respuesta,
+		ASNB.comentario,
+		ASNB.usuario
+	FROM
+		DETALLE_AJUSTES_SF_NO_BRM ASNB
+	WHERE
+		trunc(ASNB.fecha) = TO_DATE(#{fecha},'DD/MM/YYYY')
+	</select>
+	
+	<select id="selectAjustesSFvsBrmdetalleFiltro" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.DetalleBRMvSalesForceVO">
+	SELECT
+		ASNB.id,
+		ASNB.fecha,
+		ASNB.log,
+		ASNB.nombre,
+		ASNB.cuenta,
+		ASNB.empresa,
+		ASNB.accion,
+		ASNB.fecha_ajuste,
+		ASNB.monto,
+		ASNB.respuesta,
+		ASNB.comentario,
+		ASNB.usuario
+	FROM
+		DETALLE_AJUSTES_SF_NO_BRM ASNB
+	WHERE
+		trunc(ASNB.fecha) = TO_DATE(#{fecha},'DD/MM/YYYY')
+		AND ASNB.empresa = #{filtro}
+	</select>
+	
+	<select id="selectBrmvsAjustesSFdetalle" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.DetalleBRMvSalesForceVO">
+	SELECT
+		abns.id,
+		abns.fecha,
+		abns.cuenta,
+		abns.empresa,
+		abns.item_no,
+		abns.item_total,
+		abns.fecha_ajuste,
+		abns.descr
+	FROM
+		detalle_ajustes_brm_no_sf abns
+	WHERE
+		trunc(abns.fecha) = TO_DATE(#{fecha},'DD/MM/YYYY')
+	</select>
+	<select id="selectBrmvsAjustesSFdetalleFiltro" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.DetalleBRMvSalesForceVO">
+	SELECT
+		abns.id,
+		abns.fecha,
+		abns.cuenta,
+		abns.empresa,
+		abns.item_no,
+		abns.item_total,
+		abns.fecha_ajuste,
+		abns.descr
+	FROM
+		detalle_ajustes_brm_no_sf abns
+	WHERE
+		trunc(abns.fecha) = TO_DATE(#{fecha},'DD/MM/YYYY')
+		AND abns.empresa = #{filtro}	
+	</select>
+	
+<!-- ****************************************************************************************  -->
+<!-- ****************** Validación de Series TotalPlay-Finanzas******************************  -->
+
+	 <select id="selectValidacionSeriesTP" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.validacionSeriesTPVO">
+		SELECT a.account_no ACCOUNT_T_ACCOUNT_NO,
+		s.login SERVICE_T_LOGIN,
+		s.status SERVICE_T_STATUS,
+		brmapp01.unix2ora_date(s.last_status_t) SERVICE_T_LAST_STATUS_T,
+		(CASE WHEN account_no IS NOT NULL THEN 1 ELSE 0 END) STATUS_BRM,
+		null DATE_INSERT, null USERNAME, 1 STATUS FROM brmapp01.account_t a,
+		brmapp01.service_t s WHERE a.poid_id0 = s.account_obj_id0 AND  s.login = #{SERVICE_T_LOGIN} 
+	</select> 
+	<!-- ***********************consult detalle_no_u2000_sin_ont**************************  -->
+	<select id="detalleActBRMvsU2000SinOnt" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.DetalleBrmNoU2000VO" >
+	
+	SELECT 	* FROM DETALLE_BRM_NO_U2000_SIN_ONT
+	WHERE TRUNC(FECHA_CONCILIACION) =TO_DATE(#{fecha},'DD/MM/YYYY')	
+	</select>	
+	<select id="detalleActBRMvsU2000SinOntFiltro" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.DetalleBrmNoU2000VO" >
+	
+	SELECT 	* FROM DETALLE_BRM_NO_U2000_SIN_ONT
+	WHERE TRUNC(FECHA_CONCILIACION) =TO_DATE(#{fecha},'DD/MM/YYYY')	
+	AND EMPRESA = #{filtro}
+	</select>	
+
+<!-- ****************** Datos Grafica *****************************  -->
+
+<select id="dtsGrafica" parameterType="java.lang.String" resultType="com.mx.totalplay.vo.BeanGraficaVo">
+SELECT cbu.fecha,
+	   cbu.t_conciliados, 
+	   cbu.total,
+       cbu.empresa,
+       dg.semana,
+       dg.año,
+       dg.mes
+FROM CONCILIACION_BRM_U2000 cbu
+		INNER JOIN dias_grafica dg on cbu.fecha=dg.fecha
+        WHERE semana=#{semana} and año=#{anio} ORDER BY fecha
+
+<!-- SELECT * FROM DIAS_GRAFICA -->
+<!-- 	WHERE semana=#{semana} and año=#{anio}  -->
+</select>
+	
+<!-- consultas de graficas por semana y por mes	 -->
+<select id="dtsGraficaMes" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.BeanGraficaVo">
+	SELECT cbu.fecha,
+				cbu.t_conciliados, 
+				cbu.total,
+        		cbu.empresa,
+        		dg.semana,
+       			dg.año,
+        		dg.mes
+   FROM CONCILIACION_BRM_U2000 cbu
+		INNER JOIN dias_grafica dg on cbu.fecha=dg.fecha
+		WHERE año=#{anio} and mes = #{m}
+        ORDER BY fecha
+</select>
+	
+	<select id="listaPuesto" parameterType="String" resultType="com.mx.totalplay.vo.RhProyectoSinTransaccionesModalVO">
+		SELECT DISTINCT puesto
+		FROM RH_AREAS_SIN_TRANS_detalle
+</select>
+<!-- LIMITE DE CREDITO CONSULTA -->
+	<select id="getLimiteCredito" parameterType="String" resultType="com.mx.totalplay.vo.LimiteDeCreditoVO">
+		
+	SELECT cuenta,
+	CASE
+	WHEN
+	<![CDATA[ (TRUNC(SYSDATE-TO_DATE(fecha_activacion,'DD/MM/YYYY')))-(TRUNC(SYSDATE-TO_DATE(SYSDATE,'DD/MM/YYYY')))<=90
+	THEN 'NUEVA' ]]>
+	WHEN
+	 (TRUNC(SYSDATE-TO_DATE(fecha_activacion,'DD/MM/YYYY')))-(TRUNC(SYSDATE-TO_DATE(SYSDATE,'DD/MM/YYYY')))
+	>90 THEN '  '
+	END AS estatusCuenta,
+	paquete,consumos_addons,renta_paquete,limite,porcentaje,
+                fecha_activacion,fecha_entrada,saldo,status,ciclo,ultima_factura 
+		 FROM 
+		LIMITE_DE_CREDITO
+		WHERE STATUS=1
+		
+	</select>
+	
+<!-- MEGAS TFE -->
+	<select id="getConsultaMegasTfe" parameterType="String" resultType="com.mx.totalplay.vo.MegasTfeVO">
+	SELECT * FROM CONCILIACION_U2000_M_TFE_BRM
+	WHERE TRUNC(FECHA) =TO_DATE(#{fecha},'DD/MM/YYYY')
+	</select>	
+		<!-- 	consulta de check box subida o bajada -->
+	<select id="getConsultaMegasTfeSoB" parameterType="String" resultType="com.mx.totalplay.vo.MegasTfeVO">
+	SELECT * FROM CONCILIACION_U2000_M_TFE_BRM
+	WHERE TRUNC(FECHA) =TO_DATE(#{fecha},'DD/MM/YYYY') AND TIPO_CONCILIACION=#{conciliacion}
+	</select>		
+		<!-- 	consulta modal detalles -->
+	<select id="getConsultaMegasTfeDetallesSoB" parameterType="String" resultType="com.mx.totalplay.vo.MegasTfeDetallesVO">
+	SELECT * FROM DETALLE_MEGAS_TFE
+	WHERE ID_CONCILIACION=#{id}
+	</select>		
+	
+	
+<!-- IMPLEMENTACION TFE  DESACTIVADO-->
+	<select id="getImplementacionTfe"  resultType="com.mx.totalplay.vo.ImpleVO">
+	SELECT SN FROM SN_DE_IMPLEMENTACION_TFE
+	</select>
+
+
+	
+</mapper>

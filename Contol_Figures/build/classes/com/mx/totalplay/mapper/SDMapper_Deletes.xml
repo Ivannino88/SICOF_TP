@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mx.totalplay.SDMapper_Deletes">
+<!-- DELETE ELIMINAR USUARIO Y PERMISOS DE CONTROL DE ACCESO -->
+
+	<select id="getDeleteEmpleado" parameterType="java.lang.String">
+		DELETE FROM SICOF_EMPLEADOS WHERE NO_EMPLEADO=#{no_empleado}
+	</select>
+	
+	<select id="getDeletePermisos" parameterType="java.lang.String">
+		DELETE FROM SICOF_ACCESO_EMPLEADOS WHERE NO_EMPLEADO=#{no_empleado}
+	</select>
+	
+<!-- DELETE CtasActBRMvsU2000LOAction ELIMINACION DE ELEMENTOS DE LINEAS INTERNAS -->
+	
+	<select id="CtasActBRMvsU2000LI_eliminarCuentas" parameterType="list">
+		DELETE
+		FROM LINEAS_INTERNAS_CUENTA_U2000 WHERE
+		<foreach collection="list" item="element" index="index"  separator=" OR " >
+		CUENTA= #{element.cuenta} AND EMPRESA=#{element.empresa} AND TRUNC(FECHA)=TO_DATE(#{element.fecha}, 'DD/MM/YYYY')
+		</foreach>
+	</select>
+	
+	<select id="CtasActBRMvsU2000LI_eliminarSN" parameterType="list">
+		DELETE
+		FROM LINEAS_INTERNAS_SN_U2000 WHERE
+		<foreach collection="list" item="element" index="index"  separator=" OR " >
+		SN= #{element.sn} AND EMPRESA=#{element.empresa} AND TRUNC(FECHA)=TO_DATE(#{element.fecha}, 'DD/MM/YYYY')
+		</foreach>
+	</select>
+	
+	<select id="CtasActBRMvsU2000LI_eliminarTodoCuentas" parameterType="list">
+		DELETE
+		FROM LINEAS_INTERNAS_CUENTA_U2000
+	</select>
+	
+	<select id="CtasActBRMvsU2000LI_eliminarTodoSN" parameterType="list">
+		DELETE
+		FROM LINEAS_INTERNAS_SN_U2000
+	</select>
+
+<!-- DELETE PaqTvBrmRedIPTVIncluidoLI_DAO ELIMINACION DE ELEMENTOS DE LINEAS INTERNAS -->
+
+<select id="PaqTvBrmRedIPTVIncluidoLI_eliminarCtas" parameterType="list">
+		DELETE
+		FROM LINEAS_INTERNAS_CUENTA_IPTV WHERE
+		<foreach collection="list" item="element" index="index"  separator=" OR " >
+		CUENTA= #{element.cuenta} AND EMPRESA=#{element.empresa} AND TRUNC(FECHA)=TO_DATE(#{element.fecha}, 'DD/MM/YYYY')
+		</foreach>
+	</select>
+	
+	<select id="PaqTvBrmRedIPTVIncluidoLI_eliminarSN" parameterType="list">
+		DELETE
+		FROM LINEAS_INTERNAS_SN_IPTV WHERE
+		<foreach collection="list" item="element" index="index"  separator=" OR " >
+		SN= #{element.sn} AND EMPRESA=#{element.empresa} AND TRUNC(FECHA)=TO_DATE(#{element.fecha}, 'DD/MM/YYYY')
+		</foreach>
+	</select>
+	
+	<select id="PaqTvBrmRedIPTVIncluidoLI_eliminarTodoCtas" parameterType="list">
+		DELETE
+		FROM LINEAS_INTERNAS_CUENTA_IPTV
+	</select>
+	
+	<select id="PaqTvBrmRedIPTVIncluidoLI_eliminarTodoSN" parameterType="list">
+		DELETE
+		FROM LINEAS_INTERNAS_SN_IPTV
+	</select>
+	
+<!-- 	ELIMINA TODO DE IMPLEMENTACION TFE -->
+	<select id="eliminaImplementaTfe" parameterType="list">
+		DELETE
+		FROM SN_DE_IMPLEMENTACION_TFE
+	</select>
+	<!-- 	ELIMINA LISTA DE IMPLEMENTACION TFE -->
+	<select id="eliminarListaSeleccionada" parameterType="list">
+		DELETE
+		FROM SN_DE_IMPLEMENTACION_TFE WHERE
+		<foreach collection="list" item="element" index="index"  separator=" OR " >
+		SN= #{element.sn}
+		</foreach>
+	</select>
+	
+</mapper>

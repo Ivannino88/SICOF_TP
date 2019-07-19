@@ -1,0 +1,322 @@
+function renovar(){
+	
+}
+var table=null;
+
+function consultaReporte(){
+	q
+	$('#fechaH').val($('#fecha').val());
+	$('#empresaH').val($('#selectEmpresa').val());
+	$('#canalH').val($('#selectCanal').val());
+	
+	
+	if( $('#fecha').val() != "" && 
+			( $('#selectEmpresa').val() != "" && $('#selectEmpresa').val() != "0") && 
+			( $('#selectCanal').val() != "" && $('#selectCanal').val() != "0") ){
+		$("#divReport").hide();
+		$.ajax({
+			url : 'getPagosBRMBanco',
+			type : "POST",
+			data : {
+				'fecha'		:	$('#fecha').val(),
+				'empresa'	:	$('#selectEmpresa').val().toString(),
+				'canal'		:	$('#selectCanal').val().toString()
+				},
+			dataType : "json",
+			beforeSend: function( xhr ) {
+				 $('#loadModal').modal();
+			 },
+			success : function(jsonResponse, textStatus, jqXHR){
+				$('#loadModal').modal('hide');
+				if(jsonResponse.success){
+					console.log(jsonResponse);
+					construyeReporte(jsonResponse);
+					if(jsonResponse.result.length > 0){
+						$('.contentMessage').hide('fade');
+						$('.contentReporte').show('fade');
+						$( "#btn-Reporte" ).prop( "disabled", false );
+					}else{
+						$('.dateFail').text($('#fecha').val());
+						$('#errorModal').modal();
+						$('.contentMessage').show('fade');
+						$('.contentReporte').hide('fade');
+						$( "#btn-Reporte" ).prop( "disabled", true );
+					}
+				}else{					
+					$('.dateFail').text($('#fecha').val());
+					$('#errorModal').modal();
+				}
+			},
+			error : function(jqXHR, textStatus, errorThrown){
+				console.log(textStatus);
+				$('#loadModal').modal('hide');
+			}
+		});
+	}else{
+		//$("#divReport").empty();
+		$("#divReport").hide();
+		$('.contentMessage').show('fade');
+		$('.contentReporte').hide('fade');
+	}
+	
+}
+
+function construyeReporte(jsonResponse) {
+	
+	$('.fechaEt').text($('#fecha').val());
+	//$('#divReport').text('');
+	
+	$("#bPagosTable").empty();
+	
+	$.each(jsonResponse.result,function(i,v){
+		$('#id_conciliacion').val(v.id);
+		var details = "";
+		if(v.color == "V"){
+			details = '<img src="/CifrasControl/img/green.png"  class="semaforo_green" >';
+		}else if(v.color == "A"){
+			details = '<img src="/CifrasControl/img/yellow.png" class="semaforo_yellow">';
+		}else{
+			details = '<img src="/CifrasControl/img/red.png" class="semaforo_red">';
+		}
+		$("#bPagosTable").append('<tr>'+
+				'<td>'+v.fecha+'</td>'+
+				'<td>'+accounting.formatNumber(v.numero_pagos)+'</td>'+
+				'<td>'+accounting.formatMoney(v.importe_brm)+'</td>'+
+				'<td>'+accounting.formatNumber(v.no_pagos_banco)+'</td>'+
+				'<td>'+accounting.formatMoney(v.importe_bancos)+'</td>'+
+				'<td>'+v.canal+'</td>'+
+				'<td>'+v.empresa+'</td>'+
+				'<td>'+details+'</td>'
+				);
+	});
+	
+	if ( $.fn.dataTable.isDataTable( '#pagosTable' ) ) {
+	    table = $('#pagosTable').DataTable();
+	}
+	else {
+	    table = $('#pagosTable').dataTable({
+			"language" : {
+				"sProcessing"	: "Procesando...",
+				"sLengthMenu"	: "Mostrar _MENU_ registros",
+				"sZeroRecords" 	: "No se encontraron resultados",
+				"sEmptyTable" 	: "Ning\u00fana OT disponible ",
+				"sInfo" 		: "",
+				"sInfoEmpty" 	: "",
+				"sInfoFiltered" : "(filtrado de un total de _MAX_ registros)",
+				"sInfoPostFix" 	: "",
+				"sSearch" 		: "Buscar:",
+				"oPaginate" 	: {
+						"sFirst" 	: "Primero",
+						"sLast"		: "\u00daltimo",
+						"sNext"		: ">",
+						"sPrevious" : "<"
+						}
+			}
+		
+		});
+	}
+	
+	
+	
+	$("#divReport").show();
+	
+	
+
+	
+//	var html, table, body = '';
+//	var header = '<table id="pagosTable" class="table table-condensed table-hover table-responsive datatable dataTable no-footer table-striped">' + '<THEAD>'
+//			+ '<tr>' 
+//			+ '<th><small>FECHA</small></th>'
+//			+ '<th><small>No. PAGOS BRM</small></th>'
+//			+ '<th><small>IMPORTE BRM</small></th>'
+//			+ '<th><small>No. PAGOS BANCO</small></th>'
+//			+ '<th><small>IMPORTE BANCOS</small></th>'
+//			+ '<th class="text-center"><small><img src="/CifrasControl/img/dashboard-icon-copy-2.png"></small></th>'
+//			+ '</tr>' + '</THEAD><tbody>';
+//	var footer = '</tbody></table>';
+//	$.each(
+//		jsonResponse.result,
+//		function(index, arrayValores) {
+//			$('#id_conciliacion').val(arrayValores.id);
+//			
+//			
+//			html = '<tr><td>';
+//			html = html + arrayValores.fecha;
+//			html = html + '</td>';
+//			html = html + '<td>';
+//			html = html + accounting.formatNumber(arrayValores.numero_pagos);
+//			html = html + '</td>';
+//			html = html + '<td>';
+//			html = html + accounting.formatMoney(arrayValores.importe_brm);
+//			html = html + '</td>';
+//			html = html + '<td>';
+//			html = html + accounting.formatNumber(arrayValores.no_pagos_banco);
+//			html = html + '</td>';
+//			html = html + '<td>';
+//			html = html + accounting.formatMoney(arrayValores.importe_bancos);
+//			html = html + '</td>';
+//			html = html + '<td align="center">';
+//			var details = "";
+//			if(arrayValores.color == "V"){
+//				details = '<img src="/CifrasControl/img/green.png"  class="semaforo_green" >';
+//			}else if(arrayValores.color == "A"){
+//				details = '<img src="/CifrasControl/img/yellow.png" class="semaforo_yellow">';
+//			}else{
+//				details = '<img src="/CifrasControl/img/red.png" class="semaforo_red">';
+//			}
+//			
+//			
+//			html = html + details;
+//			html = html + '</td>';
+//			
+//			
+//			html = html + '</tr>';
+//			body = body + html;
+//		});
+//
+//	table = header + body + footer;
+//	$(table).appendTo('#divReport');
+//	$('#pagosTable').dataTable({
+//		"language" : {
+//			"sProcessing"	: "Procesando...",
+//			"sLengthMenu"	: "Mostrar _MENU_ registros",
+//			"sZeroRecords" 	: "No se encontraron resultados",
+//			"sEmptyTable" 	: "Ning\u00fana OT disponible ",
+//			"sInfo" 		: "",
+//			"sInfoEmpty" 	: "",
+//			"sInfoFiltered" : "(filtrado de un total de _MAX_ registros)",
+//			"sInfoPostFix" 	: "",
+//			"sSearch" 		: "Buscar:",
+//			"oPaginate" 	: {
+//					"sFirst" 	: "Primero",
+//					"sLast"		: "\u00daltimo",
+//					"sNext"		: ">",
+//					"sPrevious" : "<"
+//					}
+//		}
+//	});
+}
+
+/**Funcion para llenar el combo de Empresas**/
+function loadEmpresasAjax() {
+//	console.log('Entra a loadEmpresasAjax');
+	$('#aseg10 span').addClass('desabilitado');
+	$('#selectEmpresa')
+    .find('option')
+    .remove()
+    .end()
+    .append('<option value="0"></option>')
+    .val('0');
+
+	var select = '';
+
+	$.ajax({
+			url : 'loadEmpresas',
+			type : "POST",
+			dataType : "json",
+			success : function(jsonResponse, textStatus, jqXHR) {
+				requestBussy = false;
+				if (jsonResponse.success == true) {
+//					console.log('loadEmpresasAjax - Success::::');
+					$.each(jsonResponse.result, function(index, arrayValores) {
+						select = select + '<option value="' + arrayValores.id_empresa + '">' + arrayValores.empresa + '</option>"';
+//						console.log('loadEmpresasAjax - '+arrayValores.id_empresa+','+arrayValores. empresa);
+					});
+					$(select).appendTo('#selectEmpresa');
+
+				} else {
+					console.log('loadEmpresas - parseActionErrors::::');
+				}
+			},
+			error : function(jqXHR, textStatus, errorThrown) {
+				requestBussy = false;
+				console.log("loadEmpresasAjax - Ocurrio un error en su peticion Errs_ " + textStatus + ", " + errorThrown);
+				var error = new Object();
+				error.mensaje = "Ocurrio un error al intentar procesar su petici&oacute;n, por favor reintentelo.";
+			}
+		});
+}
+
+
+/**Funcion para llenar el combo de Empresas**/
+function loadCanalesAjax() {
+//	console.log('Entra a loadCanalesAjax');
+	
+	$('#selectCanal')
+    .find('option')
+    .remove()
+    .end()
+    .append('<option value="0"></option>')
+    .val('0');
+
+	var select = '';
+
+	$.ajax({
+			url : 'loadCanales',
+			type : "POST",
+			dataType : "json",
+			success : function(jsonResponse, textStatus, jqXHR) {
+				requestBussy = false;
+				if (jsonResponse.success == true) {
+//					console.log('loadCanalesAjax - Success::::');
+					$.each(jsonResponse.result, function(index, arrayValores) {
+						select = select + '<option value="' + arrayValores.id_canal + '">' + arrayValores.canal + '</option>"';
+//						console.log('loadCanalesAjax - '+arrayValores.id_canal+','+arrayValores.canal);
+					});
+					$(select).appendTo('#selectCanal');
+
+				} else {
+					console.log('loadCanales - parseActionErrors::::');
+				}
+			},
+			error : function(jqXHR, textStatus, errorThrown) {
+				requestBussy = false;
+				console.log("loadCanalesAjax - Ocurrio un error en su peticion Errs_ " + textStatus + ", " + errorThrown);
+				var error = new Object();
+				error.mensaje = "Ocurrio un error al intentar procesar su petici&oacute;n, por favor reintentelo.";
+			}
+		});
+	
+//	functioon buscar
+	
+	$(document).ready(function() {
+		
+	    // Setup - add a text input to each footer cell
+	    $('#buscar tfoot th').each( function () {
+	    	
+	        var title = $(this).text();
+	        $(this).html( '<input type="text" placeholder="Search '+title+'" />' );
+	    } );
+	 
+	    // DataTable
+	    var table = $('#buscar').DataTable();
+	 
+	    // Apply the search
+	    table.columns().every( function () {
+	    	
+	        var that = this;
+	 
+	        $( 'input', this.footer() ).on( 'keyup change', function () {
+	            if ( that.search() !== this.value ) {
+	                that
+	                    .search( this.value )
+	                    .draw();
+	            }
+	        } );
+	    } );
+	} );
+}
+$('.modal').on('show.bs.modal', function () {
+	 $('body').css('padding-right', '0px');
+	 });
+
+//같같같같같같같같같같같같같같같같같같같같같같같같같같같�
+function getValor() {
+//	console.log("Pagos-BRM vs Bancos");
+	var botonExc = sessionStorage.getItem("exce");
+	var botonExcUs = sessionStorage.getItem("exceUs");
+	if((botonExc!= null && botonExc=='A1')||(botonExcUs!= null && botonExcUs=='USR')){
+		$('#btn-Reporte').show();
+//		console.log("valor obtenido es:->"+botonExc);
+	}
+	}

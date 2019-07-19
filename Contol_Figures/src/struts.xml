@@ -1,0 +1,812 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+"http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+	
+	<constant name="struts.devMode" value="false" />
+	<constant name="struts.multipart.saveDir" value="javax.servlet.context.tempdir" />
+	<constant name="struts.action.excludePattern" value="/Login" />
+	<constant name="struts.convention.result.path" value="/"></constant>
+	<constant name="struts.enable.DynamicMethodInvocation" value="false" />
+	
+	<package name="cifrasPublic" namespace="/" extends="struts-default">
+
+		<action name="home">
+			<result>index.jsp</result>
+		</action>
+		
+		<!-- CONTROL DE ACCESO -->
+		<action name="getControlAccesoAction" class="com.mx.totalplay.struts.action.ControlAccesoAction" method="getControlAccesoAction"></action>
+		<action name="getControlAccesoDepslegablesAction" class="com.mx.totalplay.struts.action.ControlAccesoAction" method="getControlAccesoDesplegablesAction"></action>
+		<action name="getControlAccesoModulosAction" class="com.mx.totalplay.struts.action.ControlAccesoAction" method="getControlAccesoModulosAction"></action>
+		<action name="getControlAccesoCifrasAction" class="com.mx.totalplay.struts.action.ControlAccesoAction" method="getControlAccesoCifrasAction"></action>
+		<action name="getControlAccesoBuscaEmpAction" class="com.mx.totalplay.struts.action.ControlAccesoAction" method="getControlAccesoBuscaEmpAction"></action>
+<!--#--><action name="getControlAccesoUpdateAction" class="com.mx.totalplay.struts.action.ControlAccesoAction" method="getControlAccesoUpdateAction"></action>
+		<action name="getControlAccesoNuevoAction" class="com.mx.totalplay.struts.action.ControlAccesoAction" method="getControlAccesoNuevoAction"></action>
+		<action name="getControlAccesoEliminarAction" class="com.mx.totalplay.struts.action.ControlAccesoAction" method="getControlAccesoEliminarAction"></action>
+		
+		
+		
+		<action name="controlAcceso">
+			<result name="success">/jsp/controlAcceso.jsp</result>  
+		</action>
+		
+		
+		<!-- JRMM -->
+			<action name="getReporteInstalacionesVSalmacen_cifras_sapbrms" class="com.mx.totalplay.struts.action.InstalacionesVSalmacen_cifras_sapbrm_Action" method="getReporteInstalacionesVSalmacen_cifras_sapbrms"></action>
+		<!-- JRMM -->
+		<!-- CAAR -->
+			<action name="getCentalvsEntradaAlamacen" class="com.mx.totalplay.struts.action.aCentralvsEntradaSaAction" method="getCentalvsEntradaAlamacen"></action>
+
+<!-- CuentasCanceladasvsCuentasU2000BRM-U2000 -->		
+
+		<action name="CuentasCanceladasvsCuentasU2000BRM-U2000">
+			<result>/jsp/reportes/cuentasCanceladasvsU2000.jsp</result>
+		</action>	
+			<action name="getcCanceladasvsU2000" class="com.mx.totalplay.struts.action.CCanceladasvsU2000Action" method="getcCanceladasvsU2000"></action>
+			
+			<action name="exportCCanceladasvsU2000TablaJson" class="com.mx.totalplay.struts.action.CCanceladasvsU2000Action" method="exportCCanceladasvsU2000TablaJson"></action>
+			
+			<action name="exportCCanceladasvsU2000" class="com.mx.totalplay.struts.action.CCanceladasvsU2000Action" method="exportCCanceladasvsU2000">
+				<result name="success" type="stream">
+					<param name="contentType">application/vnd.ms-excel</param>
+					<param name="inputName">inputStream</param>
+					<param name="contentDisposition">attachment;filename="${reportFile}"</param>
+					<param name="bufferSize">1024</param>
+				</result>  
+			</action>
+			
+<!-- Fin_CuentasCanceladasvsCuentasU2000BRM-U2000 -->	
+
+		<!-- CAAR -->
+			<action name="getConciliacionIptvBrmService" class="com.mx.totalplay.struts.action.PaqTvBrmRedIPTVIncluidoAction" method="getConciliacionIptvBrmService"></action>
+			
+			<!-- grafica lineal gl02 -->
+			<action name="getSemanaInstalacionesNuevasCuentasActivadasFfmBrmService" class="com.mx.totalplay.struts.action.InstalacionesNuevasCuentasActivadasFfmBrm" method="getDatosGraficaSemana"></action>
+			<action name="getMesInstalacionesNuevasCuentasActivadasFfmBrmService" class="com.mx.totalplay.struts.action.InstalacionesNuevasCuentasActivadasFfmBrm"    method="getDatosGraficaMes"></action>
+
+<!-- CONTROL DE INVENTARIOS -->			
+
+
+<!-- 3x Instalaciones Nuevas vs Cuentas Activadas FFM - BRM  -->
+<action name="instalacionesNuevasCuentasActivadasFfmBrm">
+			<result name="success">/jsp/reportes/instalacionesNuevasCuentasActivadasFfmBrm.jsp</result>  
+		</action>			
+<action name="getInstalacionesNuevasCuentasActivadasFfmBrmService" class="com.mx.totalplay.struts.action.InstalacionesNuevasCuentasActivadasFfmBrm" method="getInstalacionesNuevasCuentasActivadasFfmBrmService"></action>			
+
+		<action name="exportInstalacionesNuevasCuentasActivadasFfmBrmDetailsTabla" class="com.mx.totalplay.struts.action.InstalacionesNuevasCuentasActivadasFfmBrm" method="exportInstalacionesNuevasCuentasActivadasFfmBrmDetailsTablaJson"></action>
+		<action name="exportInstalacionesNuevasCuentasActivadasFfmBrmDetailsTabla2" class="com.mx.totalplay.struts.action.InstalacionesNuevasCuentasActivadasFfmBrm" method="exportInstalacionesNuevasCuentasActivadasFfmBrmDetailsTablaJson2"></action>
+		
+		<action name="exportInstalacionesNuevasCuentasActivadasFfmBrmDetails" class="com.mx.totalplay.struts.action.InstalacionesNuevasCuentasActivadasFfmBrm" method="exportInstalacionesNuevasCuentasActivadasFfmBrmDetails">			
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${reportFile}"</param>
+				<param name="bufferSize">1024</param>
+			</result>  
+		</action>
+
+<!--  Fin_Instalaciones Nuevas vs Cuentas Activadas FFM - BRM  -->		
+
+<!-- Instalaciones vs Salidas de Almacén SAP - BRM -->
+		<action name="instalacionesvsSalidasAlmacenSAP2">
+			<result name="success">/jsp/reportes/instVsSalidasAlmacenSAP2.jsp</result>  
+		</action>
+			<action name="getInstVsSalidasAlmacenSAPService" class="com.mx.totalplay.struts.action.InstalacionesvsSalidasAlmacenSAPAction" method="getInstVsSalidasAlmacenSAPService"></action>
+		<action name="exportInstalacionesvsSalidasAlmacenSAPDetailsTabla" class="com.mx.totalplay.struts.action.InstalacionesvsSalidasAlmacenSAPAction" method="exportInstalacionesvsSalidasAlmacenSAPDetailsTablaJson"></action>
+		<action name="exportInstalacionesvsSalidasAlmacenSAPDetailsTabla2" class="com.mx.totalplay.struts.action.InstalacionesvsSalidasAlmacenSAPAction" method="exportInstalacionesvsSalidasAlmacenSAPDetailsTablaJson2"></action>	
+			
+		<action name="exportInstalacionesvsSalidasAlmacenSAPDetails" class="com.mx.totalplay.struts.action.InstalacionesvsSalidasAlmacenSAPAction" method="exportInstalacionesvsSalidasAlmacenSAPDetails">			
+				<result name="success" type="stream">
+					<param name="contentType">application/vnd.ms-excel</param>
+					<param name="inputName">inputStream</param>
+					<param name="contentDisposition">attachment;filename="${reportFile}"</param>
+					<param name="bufferSize">1024</param>
+				</result>  
+		</action>	
+<!-- Fin_Instalaciones vs Salidas de Almacén SAP - BRM -->
+			
+			<!-- GRAFICA LINEAL gl01 -->
+			<action name="datosSemInstVsSalidasAlmacenSAPService" class="com.mx.totalplay.struts.action.InstalacionesvsSalidasAlmacenSAPAction" method="getDatosGraficaSemana"></action>
+			<action name="datosMesInstVsSalidasAlmacenSAPService" class="com.mx.totalplay.struts.action.InstalacionesvsSalidasAlmacenSAPAction" method="getDatosGraficaMes"></action>
+			
+			
+			
+		
+		<action name="almacenCentralvsEntradaSubAlmacen">
+			<result name="success">/jsp/reportes/aCentralvsEntradaSa.jsp</result>  
+		</action>
+		
+<!--  Salidas de Sub almacenes vs Entrada a Cuadrillas  -->		
+		<action name="salidaSubalmacenesvsEntradasCuadrillas">
+			<result name="success">/jsp/reportes/salidaSubalmacenesvsEntradasCuadrillas.jsp</result>  
+		</action>
+		<action name="getSalidasSubalmacenvsEntradasCuadrillas" class="com.mx.totalplay.struts.action.SalidasSubalmacenvsEntradasCuadrillasAction" method="getSalidasSubalmacenvsEntradasCuadrillas"></action>
+		
+		<action name="getDetalleSalidasSubalmacenvsEntradasCuadrillasTabla" class="com.mx.totalplay.struts.action.SalidasSubalmacenvsEntradasCuadrillasAction" method="getDetalleSalidasSubalmacenvsEntradasCuadrillasTablaJson"></action>
+	
+	<action name="getDetalleSalidasSubalmacenvsEntradasCuadrillas" class="com.mx.totalplay.struts.action.SalidasSubalmacenvsEntradasCuadrillasAction" method="getDetalleSalidasSubalmacenvsEntradasCuadrillas">
+		<result name="success" type="stream">
+			<param name="contentType">application/vnd.ms-excel</param>
+			<param name="inputName">inputStream</param>
+			<param name="contentDisposition">attachment;filename="${reportFile}"</param>
+			<param name="bufferSize">1024</param>
+		</result>
+	</action>
+<!-- Fin_Salidas de Sub almacenes vs Entrada a Cuadrillas  -->	
+	
+		
+		
+		<action name="paqTvBrmRedIPTVIncluido">
+			<result name="success">/jsp/reportes/paqTvBrmRedIPTVIncluido.jsp</result>  
+		</action>
+		
+		
+		<action name="ConciliacionBrmBancos">
+			<result name="success">/jsp/reportes/ConciliacionBrmBancos.jsp</result>
+		</action>
+		<action name="ConsumosVodBrmIptv">
+			<result name="success">/jsp/reportes/ConsumosVodBrmIptv.jsp</result>
+		</action>
+		
+<!-- 3x  Salida de Equipos vs Equipos Capitalizados SAP - SAP -->	
+	
+		<action name="salidaEqvsEqCapitalizadosSAP">
+			<result name="success">/jsp/reportes/salidaEqvsEqCapitalizadosSAP.jsp</result>  
+		</action>
+		
+		<action name="getSalidaEqvsEqCapitalizadosSAP" class="com.mx.totalplay.struts.action.SalidaEqvsEqCapitalizadosSAPAction" method="getSalidaEqvsEqCapitalizadosSAP"></action>
+		
+		<action name="getSalidaEqvsEqCapitalizadosSAPTabla" class="com.mx.totalplay.struts.action.SalidaEqvsEqCapitalizadosSAPAction" method="exportDetalleSalidaEqvsEqCapitalizadosSAPTablaJson"></action>
+			
+		<action name="exportDetalleSalidaEqvsEqCapitalizadosSAP" class="com.mx.totalplay.struts.action.SalidaEqvsEqCapitalizadosSAPAction" method="exportDetalleSalidaEqvsEqCapitalizadosSAP">
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${reportFile}"</param>
+				<param name="bufferSize">1024</param>
+			</result>  
+		</action>
+		
+		
+		
+		
+		<action name="validacionSeriesTP">
+			<result name="success">/jsp/reportes/validacionSeriesTP.jsp</result>
+		</action>
+		
+		<action name="getvalidacionSeriesTPprevio" class="com.mx.totalplay.struts.action.validacionSeriesTPAction" method="getvalidacionSeriesTPprevio"></action>
+		<action name="getvalidacionSeriesTP" class="com.mx.totalplay.struts.action.validacionSeriesTPAction" method="getvalidacionSeriesTP"></action>
+		<action name="exportvalidacionSeriesTPDetail" class="com.mx.totalplay.struts.action.validacionSeriesTPAction" method="exportvalidacionSeriesTPDetail">
+				<result name="success" type="stream">
+					<param name="contentType">application/vnd.ms-excel</param>
+					<param name="inputName">inputStream</param>
+					<param name="contentDisposition">attachment;filename="${reportFile}"</param>
+					<param name="bufferSize">1024</param>
+				</result>  
+			</action>
+		
+		
+		
+		
+
+		
+		<!-- ASEGURAMIENTO DE INGRESO -->
+<!-- 	********* CUENTAS ACTIVAS BRM VS U2000 *********** -->
+		<action name="ctasActBRMvsU20002">
+			<result name="success">/jsp/reportes/ctasActBRMvsU20002.jsp</result>  
+		</action>
+		<action name="ctasActBRMvsU2000">
+			<result name="success">/jsp/reportes/ctasActBRMvsU2000.jsp</result>  
+		</action>
+		
+		<action name="exportCtasActivasBRMvsU2000DetailsTPTablaJson" class="com.mx.totalplay.struts.action.CtasActBRMvsU2000Action" method="exportCtasActivasBRMvsU2000DetailsTPTablaJson"></action>
+		<action name="exportCtasActivasBRMvsU2000DetailsTPTablaJson2" class="com.mx.totalplay.struts.action.CtasActBRMvsU2000Action" method="exportCtasActivasBRMvsU2000DetailsTPTablaJson2"></action>
+		<action name="exportCtasActivasBRMvsU2000DetailsTPTablaJson3" class="com.mx.totalplay.struts.action.CtasActBRMvsU2000Action" method="exportCtasActivasBRMvsU2000DetailsTPTablaJson3"></action>
+		<action name="exportCtasActivasBRMvsU2000DetailsTPTablaJson4" class="com.mx.totalplay.struts.action.CtasActBRMvsU2000Action" method="exportCtasActivasBRMvsU2000DetailsTPTablaJson4"></action>
+		
+		
+		<action name="exportCtasActivasBRMvsU2000DetailsTP" class="com.mx.totalplay.struts.action.CtasActBRMvsU2000Action" method="exportCtasActivasBRMvsU2000DetailsTP">
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+<!-- 				<param name="contentDisposition">attachment;filename="${reportFile}"</param> -->
+					<param name="contentDisposition">attachment;filename="document.xlsx"</param>
+				<param name="bufferSize">1024</param>
+			</result>  
+		</action>
+	
+<!-- LINEAS INTERNAS U2000 -->
+		<action name="ctasActBRMvsU2000LOCtas_Excel" class="com.mx.totalplay.struts.action.CtasActBRMvsU2000LOAction" method="getCtasActBRMvsU2000LOCtas_Excel"></action>
+		<action name="ctasActBRMvsU2000LOSN_Excel" class="com.mx.totalplay.struts.action.CtasActBRMvsU2000LOAction" method="getCtasActBRMvsU2000LOSN_Excel"></action>
+		<action name="Cuentas_CtasActBRMvsU2000LO" class="com.mx.totalplay.struts.action.CtasActBRMvsU2000LOAction" method="getCuentas_CtasActBRMvsU2000LO"></action>
+		<action name="SN_CtasActBRMvsU2000LO" class="com.mx.totalplay.struts.action.CtasActBRMvsU2000LOAction" method="getSN_CtasActBRMvsU2000LO"></action>
+		
+		<action name="getCtasActBRMvsU2000LI_insertarCuentas" class="com.mx.totalplay.struts.action.CtasActBRMvsU2000LOAction" method="getCtasActBRMvsU2000LI_insertarCuentas"></action>
+		<action name="getCtasActBRMvsU2000LI_insertarSN" class="com.mx.totalplay.struts.action.CtasActBRMvsU2000LOAction" method="getCtasActBRMvsU2000LI_insertarSN"></action>
+		
+		<action name="getCtasActBRMvsU2000LI_eliminarCuentas" class="com.mx.totalplay.struts.action.CtasActBRMvsU2000LOAction" method="getCtasActBRMvsU2000LI_eliminarCuentas"></action>
+		<action name="getCtasActBRMvsU2000LI_eliminarSN" class="com.mx.totalplay.struts.action.CtasActBRMvsU2000LOAction" method="getCtasActBRMvsU2000LI_eliminarSN"></action>
+		<action name="getCtasActBRMvsU2000LI_eliminarTodoCuentas" class="com.mx.totalplay.struts.action.CtasActBRMvsU2000LOAction" method="getCtasActBRMvsU2000LI_eliminarTodoCuentas"></action>
+		<action name="getCtasActBRMvsU2000LI_eliminarTodoSN" class="com.mx.totalplay.struts.action.CtasActBRMvsU2000LOAction" method="getCtasActBRMvsU2000LI_eliminarTodoSN"></action>
+			
+		
+		
+<!-- ********* -->
+				
+		
+		
+		<action name="exportDetallePaqTvBrmRedIPTVIncluidoTablaJson" class="com.mx.totalplay.struts.action.PaqTvBrmRedIPTVIncluidoAction" method="exportDetallePaqTvBrmRedIPTVIncluidoTablaJson"></action>
+		<action name="exportDetallePaqTvBrmRedIPTVIncluidoTablaJson2" class="com.mx.totalplay.struts.action.PaqTvBrmRedIPTVIncluidoAction" method="exportDetallePaqTvBrmRedIPTVIncluidoTablaJson2"></action>
+						
+		<action name="exportDetallePaqTvBrmRedIPTVIncluido" class="com.mx.totalplay.struts.action.PaqTvBrmRedIPTVIncluidoAction" method="exportDetallePaqTvBrmRedIPTVIncluido">			
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${reportFile}"</param>
+				<param name="bufferSize">1024</param>
+			</result>  
+		</action>
+		
+	<!-- LINEAS INTERNAS PaqTvBrmRedIPTVIncluido -->
+	
+		<action name="PaqTvBrmRedIPTVIncluidoLI_CtasExcel" class="com.mx.totalplay.struts.action.PaqTvBrmRedIPTVIncluidoLI_Action" method="PaqTvBrmRedIPTVIncluidoLI_CtasExcel"></action>
+		<action name="PaqTvBrmRedIPTVIncluidoLI_SNExcel" class="com.mx.totalplay.struts.action.PaqTvBrmRedIPTVIncluidoLI_Action" method="PaqTvBrmRedIPTVIncluidoLI_SNExcel"></action>
+		<action name="PaqTvBrmRedIPTVIncluidoLI_Ctas" class="com.mx.totalplay.struts.action.PaqTvBrmRedIPTVIncluidoLI_Action" method="PaqTvBrmRedIPTVIncluidoLI_Ctas"></action>
+		<action name="PaqTvBrmRedIPTVIncluidoLI_SN" class="com.mx.totalplay.struts.action.PaqTvBrmRedIPTVIncluidoLI_Action" method="PaqTvBrmRedIPTVIncluidoLI_SN"></action>
+		
+		<action name="PaqTvBrmRedIPTVIncluidoLI_insertarCtas" class="com.mx.totalplay.struts.action.PaqTvBrmRedIPTVIncluidoLI_Action" method="PaqTvBrmRedIPTVIncluidoLI_insertarCtas"></action>
+		<action name="PaqTvBrmRedIPTVIncluidoLI_insertarSN" class="com.mx.totalplay.struts.action.PaqTvBrmRedIPTVIncluidoLI_Action" method="PaqTvBrmRedIPTVIncluidoLI_insertarSN"></action>
+		
+		<action name="PaqTvBrmRedIPTVIncluidoLI_eliminarCuentas" class="com.mx.totalplay.struts.action.PaqTvBrmRedIPTVIncluidoLI_Action" method="PaqTvBrmRedIPTVIncluidoLI_eliminarCuentas"></action>
+		<action name="PaqTvBrmRedIPTVIncluidoLI_eliminarSN" class="com.mx.totalplay.struts.action.PaqTvBrmRedIPTVIncluidoLI_Action" method="PaqTvBrmRedIPTVIncluidoLI_eliminarSN"></action>
+		<action name="PaqTvBrmRedIPTVIncluidoLI_eliminarTodoCuentas" class="com.mx.totalplay.struts.action.PaqTvBrmRedIPTVIncluidoLI_Action" method="PaqTvBrmRedIPTVIncluidoLI_eliminarTodoCuentas"></action>
+		<action name="PaqTvBrmRedIPTVIncluidoLI_eliminarTodoSN" class="com.mx.totalplay.struts.action.PaqTvBrmRedIPTVIncluidoLI_Action" method="PaqTvBrmRedIPTVIncluidoLI_eliminarTodoSN"></action>
+			
+	<!-- FIN -->
+		
+		
+	
+		
+		
+		
+		
+		<!-- LA REPORTE Cuentas Activas BRM vs IMS-->
+		<action name="getReporteBRMvsIMS" class="com.mx.totalplay.struts.action.CtasActBRMvsIMSAction" method="getReporteBRMvsIMS"></action>
+			<!-- EXPORT EXCEL JRMM -->
+			
+				<action name="exportDetalleReporteBRMvsIMSdetailTabla" class="com.mx.totalplay.struts.action.CtasActBRMvsIMSAction" method="exportDetalleReporteBRMvsIMSdetailTablaJson"></action>
+				<action name="exportDetalleReporteBRMvsIMSdetailTabla2" class="com.mx.totalplay.struts.action.CtasActBRMvsIMSAction" method="exportDetalleReporteBRMvsIMSdetailTablaJson2"></action>
+			
+				<action name="exportDetalleReporteBRMvsIMSdetail" class="com.mx.totalplay.struts.action.CtasActBRMvsIMSAction" method="exportDetalleReporteBRMvsIMSdetail">
+					<result name="success" type="stream">
+						<param name="contentType">application/vnd.ms-excel</param>
+						<param name="inputName">inputStream</param>
+						<param name="contentDisposition">attachment;filename="${reportFile}"</param>
+						<param name="bufferSize">1024</param>
+					</result>  
+				</action>
+			<!-- FIN EXPORT EXCEL JRMM -->
+		
+		<!--  grafica lineal  gl04 -->	
+			<action name="getReporteBRMvsIMSSemana" class="com.mx.totalplay.struts.action.CtasActBRMvsIMSAction" method="getDatosGraficaSemana"></action>
+			<action name="getReporteBRMvsIMSMes"    class="com.mx.totalplay.struts.action.CtasActBRMvsIMSAction" method="getDatosGraficaMes"></action>
+			
+			
+		<!--  LA FIN REPORTE Cuentas Activas BRM vs IMS-->
+		
+<!-- Reporte Cuentas Facturadas vs. Facturacion BRM - INTERFACTURA -->
+		<action name="ctasFACvsFACTBRM">
+			<result name="success">/jsp/reportes/ctasFacturadasvsFacturacionBRM.jsp</result>  
+		</action>
+		<action name="reporteCtasFactvsFactBRMIF" class="com.mx.totalplay.struts.action.CtasFacturadasvsFacturacionbrmAction" method="reporteCtasFactvsFactBRMIF"></action>
+		
+		<action name="getDetailInterfactura" class="com.mx.totalplay.struts.action.CtasFacturadasvsFacturacionbrmAction" method="getDetailInterfactura"></action>
+		<action name="getResumeInterfactura" class="com.mx.totalplay.struts.action.CtasFacturadasvsFacturacionbrmAction" method="getResumeInterfactura"></action>
+		<action name="exportDetallectasFactvsFactBRMIFTablaJson" class="com.mx.totalplay.struts.action.CtasFacturadasvsFacturacionbrmAction" method="exportDetallectasFactvsFactBRMIFTablaJson"></action>
+		<action name="exportDetallectasFactvsFactBRMIFTablaJson2" class="com.mx.totalplay.struts.action.CtasFacturadasvsFacturacionbrmAction" method="exportDetallectasFactvsFactBRMIFTablaJson2"></action>
+		
+		
+		<action name="exportDetallectasFactvsFactBRMIF" class="com.mx.totalplay.struts.action.CtasFacturadasvsFacturacionbrmAction" method="exportDetallectasFactvsFactBRMIF">
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${reportFile}"</param>
+				<param name="bufferSize">1024</param>
+			</result>  
+		</action>
+<!-- FIN JRMM Reporte Cuentas Facturadas vs. Facturacion BRM - INTERFACTURA-->		
+		
+<!-- Product Master vs Productos-BRM -->		
+		<action name="paquetesServiciosActivadosBrmPM">
+			<result name="success">/jsp/reportes/paquetesServiciosActivadosBrmPM.jsp</result>  
+		</action>
+		
+		<action name="getPaquetesServiciosActivadosBrmPMService" class="com.mx.totalplay.struts.action.PaquetesServiciosActivadosBrmPMAction" method="getPaquetesServiciosActivadosBrmPMService"></action>
+		
+		<action name="exportPaquetesServiciosActivadosBrmPMDetailsTablaJson" class="com.mx.totalplay.struts.action.PaquetesServiciosActivadosBrmPMAction" method="exportPaquetesServiciosActivadosBrmPMDetailsTablaJson"></action>
+				
+		<action name="exportPaquetesServiciosActivadosBrmPMDetails" class="com.mx.totalplay.struts.action.PaquetesServiciosActivadosBrmPMAction" method="exportPaquetesServiciosActivadosBrmPMDetails">
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${reportFile}"</param>
+				<param name="bufferSize">1024</param>
+			</result>  
+		</action>
+<!-- Fin_Product Master vs Productos-BRM -->			
+
+		
+		
+
+
+		<action name="cuentasCicloCuentasFactBRM">
+			<result name="success">/jsp/reportes/cuentasCicloCuentasFactBRM.jsp</result>  
+		</action>
+		<action name="ctasActBRMvsIMS">
+			<result name="success">/jsp/reportes/ctasActBRMvsIMS.jsp</result>  
+		</action>
+		<!-- Links JRMM -->
+		
+		<!-- FIN LINKS JRMM -->
+		
+		
+		<action name="paqueteTvBrmRedIptvIncluidoParrillaTmcode">
+			<result name="success">/jsp/reportes/paqueteTvBrmRedIptvIncluidoParrillaTmcode.jsp</result>  
+		</action>
+		<action name="getParrillasvsTMCodeTabla" class="com.mx.totalplay.struts.action.PaqueteTvBrmRedIptvIncluidoParrillaTmcodeAction" method="getParrillasvsTMCodeTabla"></action>
+				
+		
+		
+		
+		
+		
+<!-- BRM-TMCODE vs IPTV-Parrillas -->		
+		<action name="paqueteTvBrmRedIptvIncluidoParrillaTmcode">
+			<result name="success">/jsp/reportes/paqueteTvBrmRedIptvIncluidoParrillaTmcode.jsp</result>
+		</action>
+		<action name="getPaqueteTvBrmRedIptvIncluidoParrillaTmcodeService" class="com.mx.totalplay.struts.action.PaqueteTvBrmRedIptvIncluidoParrillaTmcodeAction" method="getPaqueteTvBrmRedIptvIncluidoParrillaTmcodeService"></action>
+		
+		<action name="exportPaqueteTvBrmRedIptvIncluidoParrillaTmcodeDetailsTablaJson" class="com.mx.totalplay.struts.action.PaqueteTvBrmRedIptvIncluidoParrillaTmcodeAction" method="exportPaqueteTvBrmRedIptvIncluidoParrillaTmcodeDetailsTablaJson"></action>
+		<action name="exportPaqueteTvBrmRedIptvIncluidoParrillaTmcodeDetailsTablaJson2" class="com.mx.totalplay.struts.action.PaqueteTvBrmRedIptvIncluidoParrillaTmcodeAction" method="exportPaqueteTvBrmRedIptvIncluidoParrillaTmcodeDetailsTablaJson2"></action>
+		
+		
+		<action name="exportPaqueteTvBrmRedIptvIncluidoParrillaTmcodeDetails" class="com.mx.totalplay.struts.action.PaqueteTvBrmRedIptvIncluidoParrillaTmcodeAction" method="exportPaqueteTvBrmRedIptvIncluidoParrillaTmcodeDetails">
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${reportFile}"</param>
+				<param name="bufferSize">1024</param>
+			</result>  
+		</action>
+		
+		<action name="getParrillasvsTMCodeInsert" class="com.mx.totalplay.struts.action.PaqueteTvBrmRedIptvIncluidoParrillaTmcodeAction" method="getParrillasvsTMCodeInsert"></action>
+		
+		
+		
+		
+		<!-- 		*************************************** -->
+		
+		<!-- LLAMADA A METODOS PARA JS / CONTROL DE INVENTARIOS -->
+			<action name="getReporteInstalacionesVSalmacen_cifras_sapbrms" class="com.mx.totalplay.struts.action.InstalacionesVSalmacen_cifras_sapbrm_Action" method="getReporteInstalacionesVSalmacen_cifras_sapbrms"></action>
+			<action name="getCentalvsEntradaAlamacen" class="com.mx.totalplay.struts.action.aCentralvsEntradaSaAction" method="getCentalvsEntradaAlamacen"></action>
+		
+		
+		<!-- LLAMADA A METODOS PARA JS / ASEGURAMIENTO DE INGRESOS -->
+		
+			<action name="getCtasActBRMvsU2000" class="com.mx.totalplay.struts.action.CtasActBRMvsU2000Action" method="getCtasActBRMvsU2000"></action>		
+			
+			
+			
+			
+	<!-- Cuentas por Ciclo-BRM vs Cuentas Facturadas-BRM -->		
+		<action name="CtasCiclovsCtasBRM">
+			<result name="success">/jsp/reportes/CtasCiclovsCtasBRM.jsp</result>  
+		</action>
+			
+		<action name="getCtasCiclovsCtasBRM" class="com.mx.totalplay.struts.action.CtasCiclovsCtasBRMAction" method="getCtasCiclovsCtasBRM"></action>
+		
+		<action name="exportDetalleCicloBRMDetailsTablaJson" class="com.mx.totalplay.struts.action.CtasCiclovsCtasBRMAction" method="exportDetalleCicloBRMDetailsTablaJson"></action>
+		<action name="exportDetalleCicloBRMDetailsTablaJson2" class="com.mx.totalplay.struts.action.CtasCiclovsCtasBRMAction" method="exportDetalleCicloBRMDetailsTablaJson2"></action>
+	
+		<action name="exportDetalleCicloBRMDetails" class="com.mx.totalplay.struts.action.CtasCiclovsCtasBRMAction" method="exportDetalleCicloBRMDetails">
+		<result name="success" type="stream">
+			<param name="contentType">application/vnd.ms-excel</param>
+			<param name="inputName">inputStream</param>
+			<param name="contentDisposition">attachment;filename="${reportFile}"</param>
+			<param name="bufferSize">1024</param>
+		</result>  
+		</action>
+		
+		
+		
+		<!--  grafica lineal gl03 -->	
+			<action name="getCtasActBRMvsU2000Semana" class="com.mx.totalplay.struts.action.CtasActBRMvsU2000Action" method="getDatosGraficaSemana"></action>
+			<action name="getCtasActBRMvsU2000Mes"    class="com.mx.totalplay.struts.action.CtasActBRMvsU2000Action" method="getDatosGraficaMes"></action>		
+		
+	
+		
+		
+		<!-- JRMM Reporte Reporte Salidas Almacen Central vs Entradas Sub almacenes-->
+		<action name="salidasAlmacenCvsEntradasSubalmac2">
+			<result name="success">/jsp/reportes/salidasAlmacenCvsEntradasAlmacen2.jsp</result>  
+		</action>
+		
+		
+		<action name="salidasAlmacenCvsEntradasSubalmac">
+			<result name="success">/jsp/reportes/salidasAlmacenCvsEntradasAlmacen.jsp</result>  
+		</action>
+		<action name="getSalidasAlmacenCvsEntradasSubalmac" class="com.mx.totalplay.struts.action.SalidasAlmacenCvsEntradasSubalmacAction" method="getSalidasAlmacenCvsEntradasSubalmac"></action>
+		
+		<action name="exportDetalleSalidasAlmacenCvsEntradasSubalmacTabla" class="com.mx.totalplay.struts.action.SalidasAlmacenCvsEntradasSubalmacAction" method="exportDetalleSalidasAlmacenCvsEntradasSubalmacTablaJson"></action>
+		
+		<action name="exportDetalleSalidasAlmacenCvsEntradasSubalmac" class="com.mx.totalplay.struts.action.SalidasAlmacenCvsEntradasSubalmacAction" method="exportDetalleSalidasAlmacenCvsEntradasSubalmac">
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${reportFile}"</param>
+				<param name="bufferSize">1024</param>
+			</result>  
+		</action>
+		<!-- FIN JRMM Reporte Salidas Almacen Central vs Entradas Sub almacenes-->
+	
+	
+	
+	
+	
+	
+<!-- Product Master vs Servicios-BRM -->	
+	<action name="paqvsProductIncBRM">
+		<result name="success">/jsp/reportes/paqvsProductIncBRM.jsp</result>  
+	</action>
+	<action name="getPaqvsProductIncBRM" class="com.mx.totalplay.struts.action.PaqvsProductIncBRMAction" method="getPaqvsProductIncBRM"></action>
+	<action name="exportPaqvsProductIncBRMTablaJson" class="com.mx.totalplay.struts.action.PaqvsProductIncBRMAction" method="exportPaqvsProductIncBRMTablaJson"></action>
+	
+	<action name="exportPaqvsProductIncBRM" class="com.mx.totalplay.struts.action.PaqvsProductIncBRMAction" method="exportPaqvsProductIncBRM">
+		<result name="success" type="stream">
+			<param name="contentType">application/vnd.ms-excel</param>
+			<param name="inputName">inputStream</param>
+			<param name="contentDisposition">attachment;filename="${reportFile}"</param>
+			<param name="bufferSize">1024</param>
+		</result>  
+	</action>
+	
+	
+	
+
+	
+
+<!--   Adicionales TV-BRM vs Adicionales IPTV  -->
+
+<action name="canalesBRMvsIPTVAdicionales">
+			<result name="success">/jsp/reportes/addONSCanalesBRMvsIPTVAdicionales.jsp</result>
+		</action>
+		
+	<action name="getCanalesBRMvsIPTVAdicionales" class="com.mx.totalplay.struts.action.AddONSCanalesBRMvsIPTVAdicionalesAction" method="getCanalesBRMvsIPTVAdicionales"></action>
+	
+	<action name="exportDetalleCanalesBRMvsIPTVAdicionalesDetailsTablaJson" class="com.mx.totalplay.struts.action.AddONSCanalesBRMvsIPTVAdicionalesAction" method="exportDetalleCanalesBRMvsIPTVAdicionalesDetailsTablaJson"></action>
+	<action name="exportDetalleCanalesBRMvsIPTVAdicionalesDetailsTablaJson2" class="com.mx.totalplay.struts.action.AddONSCanalesBRMvsIPTVAdicionalesAction" method="exportDetalleCanalesBRMvsIPTVAdicionalesDetailsTablaJson2"></action>
+	
+	<action name="exportDetalleCanalesBRMvsIPTVAdicionalesDetails" class="com.mx.totalplay.struts.action.AddONSCanalesBRMvsIPTVAdicionalesAction" method="exportDetalleCanalesBRMvsIPTVAdicionalesDetails">
+		<result name="success" type="stream">
+			<param name="contentType">application/vnd.ms-excel</param>
+			<param name="inputName">inputStream</param>
+			<param name="contentDisposition">attachment;filename="${reportFile}"</param>
+			<param name="bufferSize">1024</param>
+		</result>  
+	</action>
+
+
+	
+	
+	<action name="exportCtasActivasBRMvsU2000DetailsTP" class="com.mx.totalplay.struts.action.CtasActBRMvsU2000Action" method="exportCtasActivasBRMvsU2000DetailsTP">
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${reportFile}"</param>
+				<param name="bufferSize">1024</param>
+			</result>  
+		</action>
+	
+	
+	<action name="getConciliacionBrmBancos" class="com.mx.totalplay.struts.action.ConciliacionBrmBancosAction" method="getConciliacionBrmBancos"></action>		
+		
+	<action name="getListaCanal" class="com.mx.totalplay.struts.action.ConciliacionBrmBancosAction" method="getListaCanal"></action>		
+	
+
+<!-- Consumos VODS-BRM vs VODS-IPTV -->	
+	<action name="getConciliacionVodBrm" class="com.mx.totalplay.struts.action.ConsumosVodBrmIptvAction" method="getConciliacionVodBrm"></action>
+	
+	
+	<action name="exportgetDetalleVodsTablaJson" class="com.mx.totalplay.struts.action.ConsumosVodBrmIptvAction" method="exportgetDetalleVodsTablaJson"></action>
+	<action name="exportgetDetalleVodsTablaJsonSemana" class="com.mx.totalplay.struts.action.ConsumosVodBrmIptvAction" method="exportgetDetalleVodsTablaJsonSemana"></action>
+		
+		<action name="exportgetDetalleVods" class="com.mx.totalplay.struts.action.ConsumosVodBrmIptvAction" method="exportgetDetalleVods">
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${reportFile}"</param>
+				<param name="bufferSize">1024</param>
+			</result>  
+		</action>
+		
+<!--  VODS IPTV SEMANAL		 -->
+	<action name="getConciliacionVodBrm02" class="com.mx.totalplay.struts.action.ConsumosVodBrmIptvAction" method="getConciliacionVodBrm02"></action>	
+		<action name="exportgetDetalleVodsSemana" class="com.mx.totalplay.struts.action.ConsumosVodBrmIptvAction" method="exportgetDetalleVodsSemana">
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${reportFile}"</param>
+				<param name="bufferSize">1024</param>
+			</result>  
+		</action>
+		
+		<action name="verValor" class="com.mx.totalplay.struts.action.ConsumosVodBrmIptvAction" method="obtenerValor">
+			<result name="success" >
+			</result>  
+		</action>
+		
+		
+<!-- FIN     Consumos VODS-BRM vs VODS-IPTV -->
+
+		
+<!-- ADICIONALES U2000BRM -->
+		<action name="AdicionalesU2000Brm">
+			<result name="success">/jsp/reportes/AdicionalesU2000Brm.jsp</result>
+		</action>
+		<action name="getConciliacionAddonsBrmU2000" class="com.mx.totalplay.struts.action.AdicionalesU2000BrmAction" method="getConciliacionAddonsBrmU2000"></action>
+		
+<!-- 		Obtener el conteo del detalle -->
+		<action name="getConteoDetails" class="com.mx.totalplay.struts.action.AdicionalesU2000BrmAction" method="getConteoDetails"></action>
+	
+		<action name="exportDetalleConciliacionAddonsBrmU2000DetailsTablaJson" class="com.mx.totalplay.struts.action.AdicionalesU2000BrmAction" method="exportDetalleConciliacionAddonsBrmU2000DetailsTablaJson"></action>
+		<action name="exportDetalleConciliacionAddonsBrmU2000DetailsTablaJson2" class="com.mx.totalplay.struts.action.AdicionalesU2000BrmAction" method="exportDetalleConciliacionAddonsBrmU2000DetailsTablaJson2"></action>
+		<action name="getJsonActualizar" class="com.mx.totalplay.struts.action.AdicionalesU2000BrmAction" method="getJsonActualizar"></action>
+		
+		<action name="updateListAll" class="com.mx.totalplay.struts.action.AdicionalesU2000BrmAction" method="updateListAll"></action>
+			
+		<action name="exportDetalleConciliacionAddonsBrmU2000Details" class="com.mx.totalplay.struts.action.AdicionalesU2000BrmAction" method="exportDetalleConciliacionAddonsBrmU2000Details">
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${reportFile}"</param>
+				<param name="bufferSize">1024</param>
+			</result>  
+		</action>
+<!-- ADICIONALES U2000BRM PROMOCIONES -->
+			<action name="getConciliacionAddonsBrmPromocionesU2000" class="com.mx.totalplay.struts.action.AdicionalesU2000BrmPromocionesAction" method="getConciliacionAddonsBrmPromocionesU2000"></action>
+			<action name="insertarAdicionalesU2000BrmPromociones" class="com.mx.totalplay.struts.action.AdicionalesU2000BrmPromocionesAction" method="insertarAdicionalesU2000BrmPromociones"></action>
+	
+<!-- Pagos-BRM vs Bancos -->
+		<action name="pagosBRMBanco">
+			<result name="success">/jsp/reportes/pagosBRMBanco.jsp</result>  
+		</action>
+		<action name="getPagosBRMBanco" class="com.mx.totalplay.struts.action.PagosBRMBancoAction" method="getPagosBRMBanco"></action>
+		
+		<action name="exportDetallePagosBRMBanco"  class="com.mx.totalplay.struts.action.PagosBRMBancoAction" method="exportDetallePagosBRMBanco">
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${reportFile}"</param>
+				<param name="bufferSize">1024</param>
+			</result>  
+		</action>
+		<action name="loadEmpresas" class="com.mx.totalplay.struts.action.PagosBRMBancoAction" method="loadEmpresas"></action>
+		<action name="loadCanales" class="com.mx.totalplay.struts.action.PagosBRMBancoAction" method="loadCanales"></action>
+		
+		
+<!-- 		RECURSOS HUMANOS  -->
+		<action name="rhProyectoSinTrans">
+			<result name="success">/jsp/reportes/rhProyectoSinTransacciones.jsp</result>  
+		</action>
+		<action name="getRhProyectoSinTransacciones" class="com.mx.totalplay.struts.action.RhProyectoSinTransaccionesAction" method="getRhProyectoSinTransacciones"></action>
+		
+		<action name="exportDetalleRhProyectoSinTransacciones" class="com.mx.totalplay.struts.action.RhProyectoSinTransaccionesAction" method="exportDetalleRhProyectoSinTransacciones">
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${reportFile}"</param>
+				<param name="bufferSize">1024</param>
+			</result>  
+		</action>
+		
+		<action name="getRhProyectoSinTransaccionesModalDetail" class="com.mx.totalplay.struts.action.RhProyectoSinTransaccionesActionModal" method="getRhProyectoSinTransaccionesModalDetail"></action>
+		
+		
+		<action name="exportDetalleRhProyectoSinTransaccionesModalDetail" class="com.mx.totalplay.struts.action.RhProyectoSinTransaccionesActionModal" method="exportDetalleRhProyectoSinTransaccionesModalDetail">
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${reportFile}"</param>
+				<param name="bufferSize">1024</param>
+			</result>  
+		</action>
+	
+		<!-- 		GET SEMANA ACTUAL  -->
+		<action name="getFechaActual" class="com.mx.totalplay.struts.action.FechaActualAction" method="getFechaActual"></action>
+		
+<!-- 		RECURSOS HUMANOS MODAL -->
+		<action name="getRhProyectoSinTransaccionesModal" class="com.mx.totalplay.struts.action.RhProyectoSinTransaccionesActionModal" method="getRhProyectoSinTransaccionesModal"></action>
+<!-- °°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°| -->
+		<action name="getPuesto" class="com.mx.totalplay.struts.action.RhProyectoSinTransaccionesActionModal" method="getPuesto">
+<!-- 			<result name="success">/jsp/reportes/rhProyectoSinTransacciones.jsp</result> -->
+		</action>
+		<action name="selectPuesto" class="com.mx.totalplay.struts.action.RhProyectoSinTransaccionesActionModal" method="getPuestoModal"></action>
+
+
+		<action name="exportDetalleRhProyectoSinTransaccionesModal" class="com.mx.totalplay.struts.action.RhProyectoSinTransaccionesActionModal" method="exportDetalleRhProyectoSinTransaccionesModal">
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${reportFile}"</param>
+				<param name="bufferSize">1024</param>
+			</result>  
+		</action>
+
+		
+	<action name="getQuery" class="com.mx.totalplay.struts.action.XdemoAction" method="getQuerys"></action>
+	
+		
+	<action name="menuprincipal">
+			<result name="success">/jsp/home.jsp</result>  
+	</action>
+	
+	<!--  <action name="consultarPorPuesotDetalleRh" class="com.mx.totalplay.struts.action.ConsultarPorPuesotDetalleRh" method="consultarPorPuesotDetalleRh"></action>
+	-->
+
+<!-- MODULO DE FACTURACION ANTERIOR Y ACTUAL -->
+<action name="facturaAA">
+			<result name="success">/jsp/reportes/facturaAntAct.jsp</result>  
+		</action>
+		<action name="getFacturaAntActAction" class="com.mx.totalplay.struts.action.FacturaAntActAction" method="getFacturaAntActAction"></action>
+		
+		<action name="exportDetalleFacturaAntAct" class="com.mx.totalplay.struts.action.FacturaAntActAction" method="exportDetalleFacturaAntAct">
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${reportFile}"</param>
+				<param name="bufferSize">1024</param>
+			</result>  
+		</action>
+		<action name="loadEmpresasFactura" class="com.mx.totalplay.struts.action.FacturaAntActAction" method="loadEmpresasFactura"></action>
+<!-- MODULO DE FACTURACION ANTERIOR Y ACTUAL -->
+
+<!-- ***************************** MODULO AJUSTE MES ANTERIOR Y MES ACTUAL  ************************** -->
+<action name="ajusteMantMact">
+<result name="success">/jsp/reportes/AjustesMsAntMsAct.jsp</result>
+</action>
+		<!-- llamado ala carga del metodo getAjusteMantMactAction -->
+<action name="getAjusteMantMactAction" class="com.mx.totalplay.struts.action.AjusteMantMactAction" method="getAjusteMantMactAction"></action>
+
+		<!-- llamado ala carga del catalogo empresas -->
+<action name="cargaEmpresaAjustes" class="com.mx.totalplay.struts.action.AjusteMantMactAction" method="loadEmpresasAjuste"></action>
+<!-- *****************************  FIN MODULO AJUSTE MES ANTERIOR Y MES ACTUAL  ************************** -->
+
+<!-- CONCILIACION POLIZAS INGRESOS  -->
+<action name="getConciPolIngre">
+	<result name="success">/jsp/reportes/ConciliaPolizasIngresos.jsp</result>
+</action>
+<action name="getConciPolIngreAcion" class="com.mx.totalplay.struts.action.ConciliaPolizasIngresosAction" method="getConciliaPolizasIngresosAction">
+</action>
+
+<!-- COBRANZA  -->
+<action name="AjustesBrmvsAjustesSalesForce">
+	<result name="success">/jsp/reportes/AjustesBRMvsAjustesSalesForce.jsp</result>
+</action>
+
+<action name="getAjustesBRMvsAjutesSalesForce" class="com.mx.totalplay.struts.action.AjustesBRMvsAjustesSalesForceAction" method="getAjustesBRMvsAjustesSalesForce">
+</action>
+	
+		<action name="exportAjustesBRMvsAjustesSalesForceDetailsTablaJson" class="com.mx.totalplay.struts.action.AjustesBRMvsAjustesSalesForceAction" method="exportAjustesBRMvsAjustesSalesForceDetailsTablaJson"></action>	
+		<action name="exportAjustesBRMvsAjustesSalesForceDetailsTablaJson2" class="com.mx.totalplay.struts.action.AjustesBRMvsAjustesSalesForceAction" method="exportAjustesBRMvsAjustesSalesForceDetailsTablaJson2"></action>
+		
+		
+		<action name="exportAjustesBRMvsAjustesSalesForceDetails" class="com.mx.totalplay.struts.action.AjustesBRMvsAjustesSalesForceAction" method="exportAjustesBRMvsAjustesSalesForceDetails">
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${reportFile}"</param>
+				<param name="bufferSize">1024</param>
+			</result>  
+		</action>
+		
+<action name="LimiteDeCredito" >
+	<result name="success">/jsp/reportes/LimiteDeCredito.jsp</result>
+</action>		
+<action name="getLimiteDeCredito" class="com.mx.totalplay.struts.action.LimiteDeCreditoAction" method="getLimiteCredito">
+<!-- <result name="success">.../jsp/reportes/LimiteDeCredito.jsp</result> -->
+</action>
+		
+<!-- FIN COBRANZA  -->
+<!-- INICIO FFM  -->
+	<action name="smallWorld">
+				<result name="success">/jsp/reportes/smallWorld.jsp</result>  
+			</action>
+			<action name="getSmallWorld" class="com.mx.totalplay.struts.action.SmallWorldAction" method="getSmallWorld"></action>
+			
+			<action name="exportDetalleFfmCuentasNoSwDetailsTablaJson" class="com.mx.totalplay.struts.action.SmallWorldAction" method="exportDetalleFfmCuentasNoSwDetailsTablaJson"></action>
+			<action name="exportDetalleFfmCuentasNoSwDetailsTablaJson2" class="com.mx.totalplay.struts.action.SmallWorldAction" method="exportDetalleFfmCuentasNoSwDetailsTablaJson2"></action>
+			<action name="exportDetalleFfmCuentasNoSwDetailsTablaJson3" class="com.mx.totalplay.struts.action.SmallWorldAction" method="exportDetalleFfmCuentasNoSwDetailsTablaJson3"></action>
+			
+			
+			<action name="exportDetalleFfmCuentasNoSwDetails" class="com.mx.totalplay.struts.action.SmallWorldAction" method="exportDetalleFfmCuentasNoSwDetails">
+			
+				<result name="success" type="stream">
+					<param name="contentType">application/vnd.ms-excel</param>
+					<param name="inputName">inputStream</param>
+					<param name="contentDisposition">attachment;filename="${reportFile}"</param>
+					<param name="bufferSize">1024</param>
+				</result>  
+			</action>
+<!-- FIN FFM  -->
+
+<!--  Megas Tfe -->
+<action name="MegasTfe" >
+	<result name="success">/jsp/reportes/MegasTfe.jsp</result>
+</action>		
+<action name="getMegasTfeJson" class="com.mx.totalplay.struts.action.MegasTfeAction" method="getMegasTfe"></action>
+<action name="getMegasTfeSoB" class="com.mx.totalplay.struts.action.MegasTfeAction" method="getMegasTfeSoB"></action>
+<action name="getMegasTfeSoBDetalle" class="com.mx.totalplay.struts.action.MegasTfeAction" method="megasTfeDetalle"></action>
+
+<action name="exportMegasTfe" class="com.mx.totalplay.struts.action.MegasTfeAction" method="exportMegasTfeSoB">			
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${reportFile}"</param>
+				<param name="bufferSize">1024</param>
+			</result>  
+</action>
+
+
+
+
+<!--  IMPLEMENTACION TFE  xxx-->
+<action name="consultaTfe" class="com.mx.totalplay.struts.action.EvaluacionTfeAction" method="consultaImplemenPrincipal"></action>
+
+<action name="insertaElemento" class="com.mx.totalplay.struts.action.EvaluacionTfeAction"  method="insertaElemento"></action>
+
+<action name="eliminarTodosElementos" class="com.mx.totalplay.struts.action.EvaluacionTfeAction"  method="eliminarTodo"></action>
+
+<action name="eliminarSeleccion" class="com.mx.totalplay.struts.action.EvaluacionTfeAction"  method="eliminarSeleccion"></action>
+
+<action name="evaluacionTfe"  class="com.mx.totalplay.struts.action.EvaluacionTfeAction" method="getEvaluaTfe_Excel">
+</action>
+<action name="evaluacionTfeTabla"  class="com.mx.totalplay.struts.action.EvaluacionTfeAction" method="leeTabla">		
+</action>
+
+<action name="validarDato"  class="com.mx.totalplay.struts.action.EvaluacionTfeAction" method="validaDato">		
+</action>
+
+
+<!-- demo ** demo ** demo  -->
+<action name="xdemo">
+		<result name="success">/jsp/reportes/xdemo.jsp</result>
+</action>
+<action name="xdemov1" class="com.mx.totalplay.struts.action.Xdemo" method="obtenerCadena">
+		<result name="success">/jsp/reportes/xdemov1.jsp</result>
+</action>
+
+
+<action name="grafLineal">
+	<result name="success">/jsp/reportes/graficaLineal.jsp</result>
+</action>
+<action name="getDatosGrafica" class="com.mx.totalplay.struts.action.GraficaLinealAction" method="getDatosGraficaSemana"></action>
+<action name="getDatosGraficaMes" class="com.mx.totalplay.struts.action.GraficaLinealAction" method="getDatosGraficaMes"></action>
+
+
+
+<!-- MODULO CAMBIOS DE EQUIPO SAP -->
+<action name="cambiosEquipoSap">
+	<result name="success">/jsp/reportes/CambiosEquipoSap.jsp</result>
+</action>
+ <action name="getSeriesSap" class="com.mx.totalplay.struts.action.CambioEquipos" method="getCambioEquiposSap"></action>
+
+
+<!-- modulo demos -->
+
+<!-- fin modulo demos -->
+
+
+	
+	</package>
+</struts>

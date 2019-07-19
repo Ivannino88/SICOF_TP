@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<settings>
+		<setting name="useGeneratedKeys" value="false" />
+	</settings>
+
+	<environments default="mybatis">
+	
+		 <environment id="mybatis">
+			<transactionManager type="JDBC" />
+			<dataSource type="JNDI">
+				<!--<property name="initial_context" value="java:comp/env" /> -->
+				<property name="data_source" value="/jdbc/CICONUSR_DS" />
+			</dataSource>
+		</environment> 
+		
+		<environment id="mybatis2">
+			<transactionManager type="JDBC" />
+			<dataSource type="JNDI">
+				<property name="data_source" value="/jdbc/BRM_Series" />
+			</dataSource>
+		</environment> 
+	</environments>
+
+	<mappers>
+		<mapper resource="com/mx/totalplay/mapper/SDMapper_Selects.xml" />
+		<mapper resource="com/mx/totalplay/mapper/SDMapper_Inserts.xml" />
+		<mapper resource="com/mx/totalplay/mapper/SDMapper_Deletes.xml" />
+
+	</mappers>
+	
+	
+</configuration>
