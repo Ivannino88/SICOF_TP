@@ -7,6 +7,7 @@ function format ( d ) {
 		return 'No se encontro en Interfactura (Check)'
 	}else{
 		return '<div class="col-md-12">'+
+		'<p>Folios notas de credito: '+d.folio_notas+'</p>'+
 		'<div class="row">'+
 		'<div class="col-md-3">'+
 		'<table class="table-bordered" >'+
@@ -89,6 +90,7 @@ function format ( d ) {
 	 
 	    // Array to track the ids of the details displayed rows
 var dt='';
+var dtResume='';
 	    $(document).ready(function() {
 	    	
 	    	  var detailRows = [];
@@ -110,7 +112,7 @@ var dt='';
 	    	            detailRows.splice( idx, 1 );
 	    	        }
 	    	        else {
-	    	        	console.log('agregar clase details');
+	    	        	
 	    	            tr.addClass( 'details' );
 	    	            row.child( format( row.data() ) ).show();
 	    	 
@@ -132,7 +134,11 @@ var dt='';
 	} );
 	    
 	    
-
+	    const formatter = new Intl.NumberFormat('en-US', {
+	    	  style: 'currency',
+	    	  currency: 'USD',
+	    	  minimumFractionDigits: 2
+	    	})
 	    
 	   
 	    
@@ -159,7 +165,7 @@ var dt='';
             			$('#wait').modal('hide');
                     },
             		success: function(data){
-            			console.log(data.result);
+            			//console.log(data.result);
             			
             				//dt.destroy(); 
             				$("#bodyDetailInterfactura").empty();
@@ -197,24 +203,36 @@ var dt='';
                 		    } );
             			
             				$.post( "getResumeInterfactura",{'fecha':fecha}, function( data ) {
-            					
+            					console.log(data);
             					$("#bodyResumeInterfactura").empty();
             					 	$("#tableResumeInterfactura").show();
+            					 	var TOTAL_COMP=0;
+            					 	var TOTAL_EDO_CTA=0;
+            					 	var TOTAL_FACT=0;
+            					 	var TOTAL_NOTAS=0;
             					 	$.each(data.result,function(i,v){
-            					 		$("#bodyResumeInterfactura").append('<tr>'+
+            					 		$("#bodyResumeInterfactura").append(
+            					 				'<tr>'+
                 					 			'<th>'+v.TOTAL_COMP+'</th>'+
                 					 			'<th>'+v.TOTAL_EDO_CTA+'</th>'+
                 					 			'<th>'+v.TOTAL_FACT+'</th>'+
                 					 			'<th>'+v.TOTAL_NOTAS+'</th>'+
                 					 			'<th>'+v.no_brm+'</th>'+
                 					 			'</tr>'+
-                					 			'<tr>'                					 			+
-                					 			//'<th>'+parseInt(v.TOTAL_COMP)*(0.36)+'<th>'
-//                					 			'<th>'+v.TOTAL_EDO_CTA*0.18+'<th>'
-//                					 			'<th>'+v.TOTAL_FACT*0.18+'<th>'
-//                					 			'<th>'+v.TOTAL_NOTAS*0.18+'<th>'+
+                					 			'<tr>'+
+                					 			'<th>'+formatter.format(parseInt(v.TOTAL_COMP)*(0.36))+'</th>'+
+                					 			'<th>'+formatter.format(parseInt(v.TOTAL_EDO_CTA)*(0.18))+'</th>'+
+                					 			'<th>'+formatter.format(parseInt(v.TOTAL_FACT)*(0.18))+'</th>'+
+                					 			'<th>'+formatter.format(parseInt(v.TOTAL_NOTAS)*(0.18))+'</th>'+
+                					 			'<th >'+'N/A'+'</th>'+
+                					 			'</tr>'+
+                					 			'<tr>'+
+                					 				'<th>'+0+'</th>'+
+                					 				'<th>'+0+'</th>'+
+                					 				'<th>'+0+'</th>'+
+                					 				'<th>'+'INGRESO TOTAL: '+'</th>'+
+                					 				'<th >'+formatter.format(v.TOTAL_FACTURADO)+'</th>'+
                 					 			'</tr>'
-                					 			
                 					 			);
             					 	});
             					 	$("#tableResumeInterfactura").DataTable({
@@ -227,6 +245,7 @@ var dt='';
             					 	
             					  //
             					});
+            				$('#exampleModalCenter').modal('show'); 
             			
             		}, 
             		error : function(jqXHR, textStatus, errorThrown){
@@ -234,6 +253,8 @@ var dt='';
         			}
             	});
         		
+        	}else{
+        		$('#exampleModalCenter').modal('show'); 
         	}
         	 
         }
@@ -568,6 +589,14 @@ function getReport(){
 	}
 	if(document.getElementById("montos").checked){
 		t_conciliacion=2;
+	}
+	
+	//Para Limpiar la tabla, si es que esta construida
+	if ( ($.fn.dataTable.isDataTable( '#detailInterfactura' )) ) {
+		
+		$("#bodyDetailInterfactura").empty();
+		dt.destroy();
+		dtResume.destroy();
 	}
 	
 	$('#opcion').val(t_conciliacion);

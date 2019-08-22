@@ -536,7 +536,25 @@
 	
 	<select id="getDetailInterfactura" parameterType="java.util.Map" resultType="com.mx.totalplay.vo.DetalleInterfactura">
 		SELECT 
-		  A.*,A.NUM_FACTURA FACTURA
+ ARCHIVO,
+ACCOUNT_NO,
+NUM_FACTURA,
+FOLIO1,
+FOLIO2,
+FOLIO3,
+TOTAL1,
+TOTAL2,
+TOTAL3,
+FECHA,
+FECHA_I,
+FOLIO_FISCAL,
+FOLIO_FISCAL2,
+FOLIO_FISCAL3,
+FOLIO_NOTAS,
+TOTAL_NOTAS,
+FOLIO_COMP,
+TOTAL_COMP,
+TOTAL_REFAC
 		FROM DETALLE_INTERFACTURA_TP  A	
 		WHERE fecha_i=#{fecha}
 		 
@@ -550,8 +568,9 @@
          SUM(TOTAL_FACT) TOTAL_FACT,
          SUM(TOTAL_REFAC) TOTAL_REFAC,
          SUM(TOTAL_COMP) TOTAL_COMP,
-         SUM(TOTAL_NOTAS) TOTAL_NOTAS
-		FROM DETALLE_INTERFACTURA_TP 	
+         SUM(TOTAL_NOTAS) TOTAL_NOTAS,
+         sum(total1+total2+total3) TOTAL_FACTURADO
+		FROM DETALLE_INTERFACTURA_TP  	
 		WHERE fecha_i=#{fecha}
 		 
 		 
@@ -1175,7 +1194,7 @@ SELECT
 		ROWNUM r
  	FROM DETALLE_ADDONS_BRM_NO_U2000   
   <!--  WHERE TO_DATE(FECHA, 'dd/mm/yy') = TO_DATE(#{fecha}, 'dd/mm/yy')  ivans-->
-  	WHERE (TRUNC(FECHA)= TO_DATE(#{fecha},'dd/mm/yyyy')) 
+  	WHERE (TRUNC(FECHA)= TO_DATE('14/07/2019','dd/mm/yyyy')) 
   	) a where <![CDATA[  a.r >= #{row1} AND a.r <= #{row2} ]]> 
   	
 <!--   	<![CDATA[ AND ROWNUM <= 20000 ]]>  -->
@@ -1199,7 +1218,7 @@ SELECT
 		ACCION
  	FROM DETALLE_ADDONS_BRM_NO_U2000   
   <!--  WHERE TO_DATE(FECHA, 'dd/mm/yy') = TO_DATE(#{fecha}, 'dd/mm/yy')  ivans-->
-  	WHERE (TRUNC(FECHA)= TO_DATE(#{fecha},'dd/mm/yyyy')) )
+  	WHERE (TRUNC(FECHA)= TO_DATE('14/07/2019','dd/mm/yyyy')) )
 <!--   	<![CDATA[ AND ROWNUM <= #{row1} AND ROWNUM <= #{row2} ]]>  -->
 <!--   	<![CDATA[ AND ROWNUM <= 20000 ]]>  -->
   	

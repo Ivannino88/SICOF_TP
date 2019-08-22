@@ -7,6 +7,7 @@ public class ResumenInterfactura {
 	private int TOTAL_FACT;
 	private int TOTAL_COMP;
 	private int TOTAL_NOTAS;
+	private Double TOTAL_FACTURADO;
 	
 	
 	public ResumenInterfactura() {
@@ -41,6 +42,12 @@ public class ResumenInterfactura {
 	}
 	public void setTOTAL_NOTAS(int tOTAL_NOTAS) {
 		TOTAL_NOTAS = tOTAL_NOTAS;
+	}
+	public Double getTOTAL_FACTURADO() {
+		return TOTAL_FACTURADO;
+	}
+	public void setTOTAL_FACTURADO(Double tOTAL_FACTURADO) {
+		TOTAL_FACTURADO = tOTAL_FACTURADO;
 	}
 	
 	

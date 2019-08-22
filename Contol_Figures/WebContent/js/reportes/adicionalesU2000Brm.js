@@ -1555,51 +1555,7 @@ function pintaReporte2(fech){
 }
 
 
-async function test(){
-//	alert('1');
-//	await downloadReport();
-//	alert('2');
-	$.get( "exportDetalleConciliacionAddonsBrmU2000Details", { fecha: $("#fechaReporte").val() } )
-	  .done(function( data ) {
-	    alert( "Data Loaded: " + data );
-	  });
-	
-}
 
-async function downloadReport(){
-	console.log('into downloadReport');
-	$('#loadModal').modal();
-	return new Promise(function(resolve, reject){
-	
-		
-		
-	var form = document.createElement("form"); //created dummy form for submitting.
-	var fechaI=$("#fechaReporte").val();
-    var fechaHidden = document.createElement("input"); 
-    form.method = "GET";
-    form.action = "exportDetalleConciliacionAddonsBrmU2000Details";
-    
-    fechaHidden.value=fechaI; //its a json string I need to pass to server.
-    fechaHidden.name="fecha";
-    fechaHidden.type = 'hidden';
-    
-    form.appendChild(fechaHidden);
-    
-    document.body.appendChild(form);
-
-    form.submit().then(function(){
-    	alert('ya se termino');
-    });
-    
-   
-    resolve(1).then(function(n){
-    	alert(n);
-    });
-   
-	});
-	
-//	 $('#loadModal').modal('hide');
-}
 
 function getCount(tableOrReport){
 	//1=reporte,2=tabla
@@ -1626,30 +1582,40 @@ function getCount(tableOrReport){
 				
 				var elements = jsonResponse;
 				
-				if(elements>40000){
+				if(elements>=80000){
 					
-					//llamar en tres partes
-					var mod = elements % 4;
-					var div = elements / 4;
+					//llamar en 5 partes
+//					var mod = elements % 4;
+//					var div = elements / 4;
+//
+//					var sizeLeft = parseInt(div);
+//					var sizeCenter = parseInt(div);
+//					var sizeCenter1 = parseInt(div);
+//					var sizeRight = parseInt(div + mod);
+					
+					//Esto es por que en 4 partes tambien truena (tome out)
+					var mod = elements % 5;
+					var div = elements / 5;
 
-					var sizeLeft = parseInt(div);
-					var sizeCenter = parseInt(div);
-					var sizeCenter1 = parseInt(div);
-					var sizeRight = parseInt(div + mod);
+					var part1 = parseInt(div);
+					var part2 = parseInt(div);
+					var part3 = parseInt(div);
+					var part4 = parseInt(div);
+					var part5 = parseInt(div + mod);
 					
 
 					if(tableOrReport=='2'){
+						
 						var data=null;
 						$('#PA').hide();
 						$('#PC').hide();
 						$('#remove').hide();
 						
-						pintaReporte3(fech,1,sizeLeft);
-						getTableData(fech,sizeLeft+sizeCenter+1,sizeLeft+sizeCenter+sizeCenter1);
-						//$('#tableModal').bootstrapTable('refresh');
-						getTableData(fech,sizeLeft+1,sizeLeft+sizeCenter)
-						//$('#tableModal').bootstrapTable('refresh');
-						getTableData(fech,sizeLeft+sizeCenter+sizeCenter1+1,elements);
+						pintaReporte3(fech,1,part1);
+						getTableData(fech,part1+1,part1+part2);
+						getTableData(fech,part1+part2+1,part1+part2+part3)
+						getTableData(fech,part1+part2+part3+1,part1+part2+part3+part4);
+						getTableData(fech,part1+part2+part3+part4+1,elements);
 
 						pintaPorcentaje();
 						$('#divDetalle').show();
@@ -1657,19 +1623,22 @@ function getCount(tableOrReport){
 						$('#PC').show(); 					// porcentaje  proyectado.
 						//$('#remove').show();			// boton de No corregir.
 					}else{
-						exportToExcelJson(fech,1,sizeLeft);
-							exportToExcelJson(fech,sizeLeft+1,sizeLeft+sizeCenter);
-								exportToExcelJson(fech,sizeLeft+sizeCenter+1,sizeLeft+sizeCenter+sizeCenter1);
-									exportToExcelJson(fech,sizeLeft+sizeCenter+sizeCenter1+1,elements);
+						exportToExcelJson(fech,1,part1);
+							exportToExcelJson(fech,part1+1,part1+part2);
+								exportToExcelJson(fech,part1+part2+1,part1+part2+part3)
+									exportToExcelJson(fech,part1+part2+part3+1,part1+part2+part3+part4);
+										exportToExcelJson(fech,part1+part2+part3+part4+1,elements);
+						
+//						exportToExcelJson(fech,1,sizeLeft);
+//							exportToExcelJson(fech,sizeLeft+1,sizeLeft+sizeCenter);
+//								exportToExcelJson(fech,sizeLeft+sizeCenter+1,sizeLeft+sizeCenter+sizeCenter1);
+//									exportToExcelJson(fech,sizeLeft+sizeCenter+sizeCenter1+1,elements);
 					}								
 				}else{
 					//traer todo
 					
 					if(tableOrReport=='2'){
-						//$("#bodyTableModal").empty();
 						pintaPorcentaje();
-						
-						//pintaPorcentaje();
 						$('#PA').hide();
 						$('#PC').hide();
 						//$('#remove').hide();

@@ -183,15 +183,17 @@
       <div class="col-md-4">
       
       </div>
+      
+      
       <div class="col-md-4">
-      		<table  id="tableResumeInterfactura" class="table table-bordered" style="display:none;">
+      		<table  id="tableResumeInterfactura" class="row-border table" style="display:none;">
   			<thead>
     			<tr>
-      				<th scope="col">COMPLEMENTOS DE PAGO</th>
-      				<th scope="col">ESTADOS DE CUENTA</th>
-      				<th scope="col">FACTURAS</th>
-      				<th scope="col">NOTAS</th>
-      				<th scope="col">NO ENCONTRADO EN INFRAESTRUCTURA</th>
+      				<th >COMPLEMENTOS PAGO</th>
+      				<th >ESTADOS CTA.</th>
+      				<th >FACTURAS</th>
+      				<th >NOTAS</th>
+      				<th >NO EN INFRAESTRUCTURA</th>
     			</tr>
   			</thead>
   			<tbody id="bodyResumeInterfactura">
@@ -271,7 +273,8 @@
       <div class="col-sm-3 contenedorR">
       <h2 class="espacio"></h2>
       <!-- Button trigger modal -->
-<button type="button" class="btn btn-primary" onclick="getDetailInterfactura()" data-toggle="modal" data-target="#exampleModalCenter">
+<button type="button" class="btn btn-primary" onclick="getDetailInterfactura()" 
+>
  		Detalle De Interfactura
 </button>
         <table class="table">
